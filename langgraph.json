@@ -1,0 +1,15 @@
+{
+  "serve": {
+    "host": "127.0.0.1",
+    "port": 8080
+  },
+  "dependencies": [
+    "langgraph",
+    "langchain-core",
+    "langchain-openai",
+    "python-dotenv"
+  ],
+  "graphs": {
+    "recommender": "src/agent/graph.py:graph"
+  }
+}
