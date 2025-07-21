@@ -1,0 +1,8 @@
+ipykernel==7.0.0a1
+jupyterlab==4.5.0a1
+langchain-core==0.3.69
+langchain-openai==0.3.28
+langgraph==0.5.3
+langgraph-api==0.2.98
+langgraph-cli==0.3.5
+python-dotenv==1.1.1
