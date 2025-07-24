@@ -11,5 +11,6 @@ system_recommender_prompt = """
     {previous_books}
 
     This is the user query:
+    {user_query}
 
 """
