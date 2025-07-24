@@ -6,6 +6,9 @@ system_recommender_prompt = """
     you are only allowed to recommend a maximum of 5 books per request.
     If the user doesn't ask for book recommendations, remember old recommendations or something similar, 
     tell the user that you are not capable of helping him.
+    
+    previous books recommended:
+    {previous_books}
 
     This is the user query:
 

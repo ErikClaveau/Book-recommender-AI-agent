@@ -1,28 +1,35 @@
-from dotenv import load_dotenv
-from langchain_core.messages import AIMessage, SystemMessage
-from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END, MessagesState
+from dotenv import load_dotenv
 
-from src.agent.prompts import system_recommender_prompt
+from src.agent.nodes import thinking_node, save_recommended_books
+from src.utils.constants import THINKING_NODE, SAVE_RECOMMENDED_BOOKS
 
 load_dotenv()
 
 
-def thinking_node(state: MessagesState):
-    print("Executing thinking node")
+def build_recommendation_graph():
+    """
+    Build and compile the state graph for the book recommendation agent.
 
-    chain = ChatOpenAI(model="gpt-3.5-turbo")
+    This graph defines the workflow of message processing states:
+      1. THINKING_NODE: where the agent processes input and decides on recommendations.
+      2. SAVE_RECOMMENDED_BOOKS: where the selected book recommendations are persisted.
 
-    result = chain.invoke([SystemMessage(content=system_recommender_prompt), state["messages"][-1]])
+    The graph always starts at the START state and ends at END after saving.
 
-    return {"messages": AIMessage(content=result.content)}
+    Returns:
+        StateGraph: A compiled state graph ready for execution.
+    """
+    builder = StateGraph(MessagesState)
+    builder.add_node(THINKING_NODE, thinking_node)
+    builder.add_node(SAVE_RECOMMENDED_BOOKS, save_recommended_books)
+
+    builder.add_edge(START, THINKING_NODE)
+    builder.add_edge(THINKING_NODE, SAVE_RECOMMENDED_BOOKS)
+    builder.add_edge(SAVE_RECOMMENDED_BOOKS, END)
+
+    return builder.compile()
 
 
-builder = StateGraph(MessagesState)
-
-builder.add_node("thinking_node", thinking_node)
-
-builder.add_edge(START, "thinking_node")
-builder.add_edge("thinking_node", END)
-
-graph = builder.compile()
+# Compile the graph when this module is executed or imported
+graph = build_recommendation_graph()
