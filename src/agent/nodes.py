@@ -29,13 +29,13 @@ def thinking_node(state: MessagesState) -> InternalState:
 
     # Prepare prompt with context of previously recommended books
     prompt_text = system_recommender_prompt.format(
-        previous_books=str(state.get("recommended_books", []))
+        previous_books=str(state.get("recommended_books", [])),
+        user_query=state["messages"][-1].content
     )
-    system_msg = SystemMessage(content=prompt_text)
-    user_msg = state["messages"][-1]
+    prompt = SystemMessage(content=prompt_text)
 
     # Invoke the model
-    result = chain.invoke([system_msg, user_msg])
+    result = chain.invoke([prompt])
 
     # Return the AIMessage for next state
     return {"messages": AIMessage(content=result.content)}
