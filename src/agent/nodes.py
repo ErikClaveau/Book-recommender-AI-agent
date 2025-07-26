@@ -1,13 +1,13 @@
 from langchain_core.messages import AIMessage, SystemMessage
-from langgraph.graph import MessagesState
+from langgraph.graph import MessagesState, END
 from langchain_openai import ChatOpenAI
 
 from src.agent.data_types import RecommendedBooks
-from src.agent.prompts import system_recommender_prompt
+from src.agent.prompts import system_recommender_prompt, initial_router, talk_with_data
 from src.agent.states import InternalState
 
 
-def thinking_node(state: MessagesState) -> InternalState:
+def thinking_node(state: InternalState) -> InternalState:
     """
     Node that generates book recommendations based on the conversation history.
 
@@ -28,14 +28,15 @@ def thinking_node(state: MessagesState) -> InternalState:
     chain = ChatOpenAI(model="gpt-3.5-turbo")
 
     # Prepare prompt with context of previously recommended books
-    prompt_text = system_recommender_prompt.format(
+    prompt_text = talk_with_data.format(
         previous_books=str(state.get("recommended_books", [])),
+        future_books=str(state.get("future_books", [])),
+        preferences=str(state.get("preferences", [])),
         user_query=state["messages"][-1].content
     )
-    prompt = SystemMessage(content=prompt_text)
 
     # Invoke the model
-    result = chain.invoke([prompt])
+    result = chain.invoke([SystemMessage(content=prompt_text)])
 
     # Return the AIMessage for next state
     return {"messages": AIMessage(content=result.content)}
@@ -58,7 +59,8 @@ def save_recommended_books(state: InternalState) -> dict:
     print("Saving Recommended Books")
 
     # Initialize deterministic chat model for structured output
-    model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    model = ChatOpenAI(model="gpt-3.5-turbo",
+                       temperature=0)
     model_with_structure = model.with_structured_output(RecommendedBooks)
 
     # Invoke and parse structured recommendations
@@ -66,4 +68,23 @@ def save_recommended_books(state: InternalState) -> dict:
 
     if recommended_books.recommended_books:
         return {"recommended_books": recommended_books.recommended_books}
+    return {}
+
+
+def get_intention(state: InternalState) -> str or END:
+    model = ChatOpenAI(model="gpt-3.5-turbo",
+                       temperature=0,
+                       max_tokens=2)
+
+    prompt_text = initial_router.format(
+        user_intention=state["messages"][-1].content
+    )
+
+    result = model.invoke([SystemMessage(content=prompt_text)])
+
+    print(result)
+    return result.content
+
+
+def initial_router_node(state: InternalState) -> dict:
     return {}

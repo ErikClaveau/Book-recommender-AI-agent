@@ -1,8 +1,10 @@
 from langgraph.graph import StateGraph, START, END, MessagesState
+
 from dotenv import load_dotenv
 
-from src.agent.nodes import thinking_node, save_recommended_books
-from src.utils.constants import THINKING_NODE, SAVE_RECOMMENDED_BOOKS
+from src.agent.nodes import thinking_node, save_recommended_books, get_intention
+from src.agent.states import InternalState
+from src.utils.constants import THINKING_NODE, SAVE_RECOMMENDED_BOOKS, INITIAL_ROUTER_TAGS
 
 load_dotenv()
 
@@ -20,12 +22,14 @@ def build_recommendation_graph():
     Returns:
         StateGraph: A compiled state graph ready for execution.
     """
-    builder = StateGraph(MessagesState)
+    builder = StateGraph(InternalState)
     builder.add_node(THINKING_NODE, thinking_node)
     builder.add_node(SAVE_RECOMMENDED_BOOKS, save_recommended_books)
 
-    builder.add_edge(START, THINKING_NODE)
-    builder.add_edge(THINKING_NODE, SAVE_RECOMMENDED_BOOKS)
+    builder.add_conditional_edges(START,
+                                  get_intention,
+                                  INITIAL_ROUTER_TAGS)
+    builder.add_edge(THINKING_NODE, END)
     builder.add_edge(SAVE_RECOMMENDED_BOOKS, END)
 
     return builder.compile()
