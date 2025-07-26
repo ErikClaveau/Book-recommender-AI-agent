@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import List
+from operator import add
+from typing import Annotated, List
 
 from langgraph.graph import MessagesState
 
@@ -27,4 +28,4 @@ class InternalState(MessagesState):
             This field is populated by the `save_recommended_books` node
             and consumed by subsequent nodes (e.g., for context or persistence).
     """
-    recommended_books: List[Book]
+    recommended_books: Annotated[List[Book], add]
