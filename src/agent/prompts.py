@@ -54,3 +54,26 @@ talk_with_data = """
     This is the user query:
     {user_query}
 """
+
+recommend_feedback = """
+    You are an AI book assistant.
+    You have just recommended some books based on the user request.
+    You have to explain the user that you just have recommended these books 
+    and explain about it.
+     
+    The user has some previous books recommended (the ones you just recommended), 
+    a 'will read' book list,
+    and some personal preferences.
+    
+    previous books recommended:
+    {previous_books}
+    
+    'will read' book list:
+    {future_books}
+    
+    preferences:
+    {preferences}
+    
+    This is the user query:
+    {user_query}
+"""

@@ -1,90 +1,131 @@
-from langchain_core.messages import AIMessage, SystemMessage
-from langgraph.graph import MessagesState, END
+"""
+Module defining graph nodes for the book recommendation agent.
+
+Each node is a step in the workflow, interacting with OpenAI chat models
+and passing structured data through the InternalState.
+"""
+from typing import Dict, List, Union
+
+from langchain_core.messages import AIMessage, SystemMessage, BaseMessage
+from langgraph.graph import END
 from langchain_openai import ChatOpenAI
 
-from src.agent.data_types import RecommendedBooks
-from src.agent.prompts import system_recommender_prompt, initial_router, talk_with_data
+from src.agent.data_types import RecommendedBooks, Book
+from src.agent.prompts import initial_router, talk_with_data, recommend_feedback
 from src.agent.states import InternalState
 
 
-def thinking_node(state: InternalState) -> InternalState:
+def thinking_node(state: InternalState) -> Dict[str, AIMessage]:
     """
-    Node that generates book recommendations based on the conversation history.
-
-    This node invokes an OpenAI chat model with a system prompt and the last user message,
-    then wraps the LLM response in an AIMessage for downstream states.
+    Generate a new recommendation message based on current conversation state.
 
     Args:
-        state (MessagesState): The current messages state, containing conversation history
-            under the key "messages" and any previous recommendations under "recommended_books".
+        state (InternalState): Contains:
+            - messages (List[BaseMessage]): Conversation history.
+            - recommended_books (List[Book]): Previously recommended books.
+            - future_books (List[Book]): Books queued for future recommendation.
+            - preferences (List[str]): User reading preferences.
 
     Returns:
-        InternalState: A new state dict with a single key "messages" mapping to an AIMessage
-            containing the model's response content.
+        Dict[str, AIMessage]: New state mapping:
+            - "messages": AIMessage with the model's recommendation response.
     """
     print("Executing thinking node")
 
-    # Initialize chat chain
-    chain = ChatOpenAI(model="gpt-3.5-turbo")
-
-    # Prepare prompt with context of previously recommended books
-    prompt_text = talk_with_data.format(
+    chain: ChatOpenAI = ChatOpenAI(model="gpt-3.5-turbo")
+    prompt_text: str = talk_with_data.format(
         previous_books=str(state.get("recommended_books", [])),
         future_books=str(state.get("future_books", [])),
         preferences=str(state.get("preferences", [])),
         user_query=state["messages"][-1].content
     )
+    system_msg: SystemMessage = SystemMessage(content=prompt_text)
 
-    # Invoke the model
-    result = chain.invoke([SystemMessage(content=prompt_text)])
-
-    # Return the AIMessage for next state
+    result = chain.invoke([system_msg])
     return {"messages": AIMessage(content=result.content)}
 
 
-def save_recommended_books(state: InternalState) -> dict:
+def _recommended_feedback(
+    state: InternalState,
+    recommended_books: List[Book]
+) -> BaseMessage:
     """
-    Node that extracts and saves structured book recommendations from the LLM output.
-
-    This node calls an OpenAI chat model configured for structured output,
-    parses the RecommendedBooks schema, and returns any extracted recommendations.
+    Create a feedback message based on structured recommendations.
 
     Args:
-        state (InternalState): The state containing the latest AIMessage under "messages".
+        state (InternalState): Current state with conversation history.
+        recommended_books (List[Book]): Books extracted from save_recommended_books.
 
     Returns:
-        dict: A dict with key "recommended_books" mapping to a list of book recommendations,
-            if any are present; otherwise, an empty dict.
+        BaseMessage: The LLM's feedback response.
+    """
+    talk_model: ChatOpenAI = ChatOpenAI(model="gpt-3.5-turbo")
+    prompt_text: str = recommend_feedback.format(
+        previous_books=str(recommended_books),
+        future_books=str(state.get("future_books", [])),
+        preferences=str(state.get("preferences", [])),
+        user_query=state["messages"][-1].content
+    )
+    result = talk_model.invoke([SystemMessage(content=prompt_text)])
+    return result
+
+
+def save_recommended_books(
+    state: InternalState
+) -> Dict[str, Union[List[Book], AIMessage]]:
+    """
+    Extract and persist structured book recommendations, then generate follow-up feedback.
+
+    Args:
+        state (InternalState): Contains last AIMessage under "messages".
+
+    Returns:
+        Dict[str, Union[List[Book], AIMessage]]: New state entries:
+            - "recommended_books": List[Book] if any recommendations.
+            - "messages": AIMessage with feedback if recommendations.
     """
     print("Saving Recommended Books")
 
-    # Initialize deterministic chat model for structured output
-    model = ChatOpenAI(model="gpt-3.5-turbo",
-                       temperature=0)
-    model_with_structure = model.with_structured_output(RecommendedBooks)
+    recommender_model: ChatOpenAI = ChatOpenAI(
+        model="gpt-3.5-turbo",
+        temperature=0
+    )
+    structured_chain = recommender_model.with_structured_output(RecommendedBooks)
 
-    # Invoke and parse structured recommendations
-    recommended_books = model_with_structure.invoke([state["messages"][-1]])
+    recommended_books_struct = structured_chain.invoke([state["messages"][-1]])
+    output: Dict[str, Union[List[Book], AIMessage]] = {}
 
-    if recommended_books.recommended_books:
-        return {"recommended_books": recommended_books.recommended_books}
-    return {}
+    if recommended_books_struct.recommended_books:
+        feedback: BaseMessage = _recommended_feedback(
+            state=state,
+            recommended_books=recommended_books_struct.recommended_books
+        )
+        output["recommended_books"] = recommended_books_struct.recommended_books
+        output["messages"] = AIMessage(content=feedback.content)
+
+    return output
 
 
-def get_intention(state: InternalState) -> str or END:
-    model = ChatOpenAI(model="gpt-3.5-turbo",
-                       temperature=0,
-                       max_tokens=2)
+def get_intention(state: InternalState) -> Union[str, END]:
+    """
+    Determine the routing intention based on the user's last message.
 
-    prompt_text = initial_router.format(
+    Args:
+        state (InternalState): Contains last message under "messages".
+
+    Returns:
+        Union[str, END]: The next state token or END to terminate.
+    """
+    print("Getting intention")
+
+    router_model: ChatOpenAI = ChatOpenAI(
+        model="gpt-3.5-turbo",
+        temperature=0,
+        max_tokens=2
+    )
+    prompt_text: str = initial_router.format(
         user_intention=state["messages"][-1].content
     )
 
-    result = model.invoke([SystemMessage(content=prompt_text)])
-
-    print(result)
+    result = router_model.invoke([SystemMessage(content=prompt_text)])
     return result.content
-
-
-def initial_router_node(state: InternalState) -> dict:
-    return {}
