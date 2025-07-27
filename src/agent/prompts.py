@@ -21,12 +21,15 @@ initial_router = """
     
     -recommendation: when the user wants new book recommendations
     -talk: when the user wants to talk his book data
+    -preferences: when the user is talking about his preferences
     
     Here are some examples for both categories:
     Can you recommend me 5 books about historical wars? - recommendation
     I want to learn about math. Recommend me some useful books - recommendation
     What is the last recommendation that you made me? - talk
     Do you think I would enjoy reading books about nihilism? - talk
+    I really like short and simple books - preferences
+    My favorite kind of books are the fantasy ones - preferences
     
     You must return only the intention tag and 
     also the word 'end' if the query doesn't match any of the labels
@@ -74,6 +77,28 @@ recommend_feedback = """
     preferences:
     {preferences}
     
+    This is the user query:
+    {user_query}
+"""
+
+preferences_feedback = """
+    You are an AI book assistant.
+    You have just get some preferences based on the user request.
+    You have to give feedback to the user about the stored preferences.
+
+    The user has some previous books recommended, 
+    a 'will read' book list,
+    and some personal preferences (the ones you just stored).
+
+    previous books recommended:
+    {previous_books}
+
+    'will read' book list:
+    {future_books}
+
+    preferences:
+    {preferences}
+
     This is the user query:
     {user_query}
 """

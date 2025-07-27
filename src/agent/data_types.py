@@ -1,12 +1,12 @@
+"""
+Data models for book recommendations and user preferences.
+
+Defines the Book, RecommendedBooks, and Preferences schemas used for structured
+outputs from the LLM. These models ensure consistent data extraction,
+validation, and formatting throughout the recommendation workflow.
+"""
 from pydantic import BaseModel, Field
 from typing import List
-
-"""
-Data models for book recommendations.
-
-Defines the Book and RecommendedBooks schemas used for structured outputs
-from the LLM. These models ensure consistent data extraction and formatting.
-"""
 
 
 class Book(BaseModel):
@@ -35,9 +35,12 @@ class RecommendedBooks(BaseModel):
     Schema for a list of book recommendations produced by the LLM.
 
     Attributes:
-        recommended_books (List[Book]): List of Book instances recommended by the model.
+        recommended_books (List[Book]):
+            List of Book instances recommended by the model.
     """
-    recommended_books: List[Book] = Field(..., description="The different recommended books")
+    recommended_books: List[Book] = Field(
+        ..., description="The different recommended books"
+    )
 
     def __str__(self) -> str:
         """
@@ -48,4 +51,28 @@ class RecommendedBooks(BaseModel):
         """
         if self.recommended_books:
             return "\n".join(str(book) for book in self.recommended_books)
+        return ""
+
+
+class Preferences(BaseModel):
+    """
+    Schema for capturing user reading preferences or genres.
+
+    Attributes:
+        preferences (List[str]):
+            A list of user-specified reading preferences.
+    """
+    preferences: List[str] = Field(
+        ..., description="The different preferences the user has"
+    )
+
+    def __str__(self) -> str:
+        """
+        Return a newline-separated string of all user preferences.
+
+        Returns:
+            str: A formatted list of preferences, or an empty string if none.
+        """
+        if self.preferences:
+            return "\n".join(self.preferences)
         return ""
