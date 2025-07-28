@@ -6,9 +6,12 @@ Defines the flow of conversation through nodes:
   2. THINKING_NODE: Generates book recommendations using LLM and current state.
   3. SAVE_RECOMMENDED_BOOKS: Persists recommendations and provides feedback.
   4. SAVE_PREFERENCES: Captures user preferences and provides acknowledgement.
+  5. SAVE_READ_BOOKS: Records user reading history and provides feedback.
 
 The graph always begins at START and terminates at END.
 """
+from typing import Any
+
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
 from dotenv import load_dotenv
@@ -18,12 +21,14 @@ from src.agent.nodes import (
     save_recommended_books,
     get_intention,
     save_preferences,
+    save_read_books,
 )
 from src.agent.states import InternalState
 from src.utils.constants import (
     THINKING_NODE,
     SAVE_RECOMMENDED_BOOKS,
     SAVE_PREFERENCES,
+    SAVE_READ_BOOKS,
     INITIAL_ROUTER_TAGS,
 )
 
@@ -36,18 +41,19 @@ def build_recommendation_graph() -> CompiledStateGraph:
     Construct and compile the recommendation state graph.
 
     Routes messages based on user intent, invokes thinking and save nodes,
-    and handles graph termination.
+    handles reading history, and manages graph termination.
 
     Returns:
         CompiledStateGraph: The executable state graph instance.
     """
-    # Initialize the state graph with domain-specific state
+    # Initialize the state graph with domain-specific InternalState
     builder: StateGraph = StateGraph(InternalState)
 
-    # Register node functions with tags
+    # Register node functions with their tags
     builder.add_node(THINKING_NODE, thinking_node)
     builder.add_node(SAVE_RECOMMENDED_BOOKS, save_recommended_books)
     builder.add_node(SAVE_PREFERENCES, save_preferences)
+    builder.add_node(SAVE_READ_BOOKS, save_read_books)
 
     # Conditional routing from START based on intention detection
     builder.add_conditional_edges(
@@ -60,6 +66,7 @@ def build_recommendation_graph() -> CompiledStateGraph:
     builder.add_edge(THINKING_NODE, END)
     builder.add_edge(SAVE_RECOMMENDED_BOOKS, END)
     builder.add_edge(SAVE_PREFERENCES, END)
+    builder.add_edge(SAVE_READ_BOOKS, END)
 
     # Compile and return the ready-to-run graph
     return builder.compile()

@@ -2,14 +2,13 @@
 Module defining the internal state for the recommendation agent's graph.
 
 This module extends the generic MessagesState with domain-specific fields
-used for passing structured recommendations and user preferences between nodes.
+used for passing structured recommendations, user preferences, and reading history between nodes.
 """
 from dataclasses import dataclass
 from operator import add
 from typing import Annotated, List
 
 from langgraph.graph import MessagesState
-
 from src.agent.data_types import Book
 
 
@@ -23,10 +22,14 @@ class InternalState(MessagesState):
     Attributes:
         recommended_books (List[Book]):
             Books already recommended to the user. Populated by save_recommended_books node.
+        read_books (List[Book]):
+            Books that the user has already read. Populated from user history or read_books node.
         preferences (List[str]):
-            User-specified reading preferences or genres. Collected from conversation.
+            User-specified reading preferences or genres. Collected by save_preferences node.
     """
     # Books that have been recommended so far (accumulated via operator.add)
     recommended_books: Annotated[List[Book], add]
-    # User reading preferences to influence recommendations
+    # Books that the user has read (accumulated via operator.add)
+    read_books: Annotated[List[Book], add]
+    # User reading preferences to influence recommendations (accumulated via operator.add)
     preferences: Annotated[List[str], add]
