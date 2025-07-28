@@ -1,7 +1,7 @@
 """
-Data models for book recommendations and user preferences.
+Data models for book recommendations, user preferences, and reading history.
 
-Defines the Book, RecommendedBooks, and Preferences schemas used for structured
+Defines the Book, RecommendedBooks, Preferences, and ReadBooks schemas used for structured
 outputs from the LLM. These models ensure consistent data extraction,
 validation, and formatting throughout the recommendation workflow.
 """
@@ -75,4 +75,28 @@ class Preferences(BaseModel):
         """
         if self.preferences:
             return "\n".join(self.preferences)
+        return ""
+
+
+class ReadBooks(BaseModel):
+    """
+    Schema for capturing the user's reading history.
+
+    Attributes:
+        read_books (List[Book]):
+            List of Book instances that the user has already read.
+    """
+    read_books: List[Book] = Field(
+        ..., description="The different books the user has read"
+    )
+
+    def __str__(self) -> str:
+        """
+        Return a newline-separated string of all read books.
+
+        Returns:
+            str: A formatted list of books, or an empty string if none.
+        """
+        if self.read_books:
+            return "\n".join(str(book) for book in self.read_books)
         return ""
