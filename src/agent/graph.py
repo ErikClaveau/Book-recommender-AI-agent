@@ -22,6 +22,7 @@ from src.agent.nodes import (
     get_intention,
     save_preferences,
     save_read_books,
+    empty_node
 )
 from src.agent.states import InternalState
 from src.utils.constants import (
@@ -30,6 +31,7 @@ from src.utils.constants import (
     SAVE_PREFERENCES,
     SAVE_READ_BOOKS,
     INITIAL_ROUTER_TAGS,
+    EMPTY_NODE
 )
 
 # Load environment variables (e.g., API keys for OpenAI)
@@ -54,6 +56,7 @@ def build_recommendation_graph() -> CompiledStateGraph:
     builder.add_node(SAVE_RECOMMENDED_BOOKS, save_recommended_books)
     builder.add_node(SAVE_PREFERENCES, save_preferences)
     builder.add_node(SAVE_READ_BOOKS, save_read_books)
+    builder.add_node(EMPTY_NODE, empty_node)
 
     # Conditional routing from START based on intention detection
     builder.add_conditional_edges(
@@ -61,6 +64,8 @@ def build_recommendation_graph() -> CompiledStateGraph:
         get_intention,
         INITIAL_ROUTER_TAGS,
     )
+
+    builder.add_edge(EMPTY_NODE, SAVE_RECOMMENDED_BOOKS)
 
     # Define direct transitions from nodes to END
     builder.add_edge(THINKING_NODE, END)

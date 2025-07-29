@@ -43,8 +43,11 @@ initial_router = """
     One of my favourite books is The Fountainhead - read
     I've read Crime and Punishment, it was awesome - read
     
-    You must return only the intention tag and 
-    also the word 'end' if the query doesn't match any of the labels
+    You must return only the intention tags and 
+    also the word 'end' if the query doesn't match any of the labels.
+    You can return multiple tags.
+    Return them separated by comas like this:
+    tag1,tag2,.....,tagN
     
     This is the user intention:
     {user_intention}

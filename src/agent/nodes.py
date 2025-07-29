@@ -6,8 +6,7 @@ and passes structured data through the InternalState.
 """
 from typing import Dict, List, Union
 
-from langchain_core.messages import AIMessage, SystemMessage, BaseMessage
-from langgraph.graph import END
+from langchain_core.messages import AIMessage, SystemMessage, BaseMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
 from src.agent.data_types import RecommendedBooks, Book, Preferences, ReadBooks
@@ -56,7 +55,8 @@ def thinking_node(state: InternalState) -> Dict[str, AIMessage]:
 
 def _recommended_feedback(
     state: InternalState,
-    recommended_books: List[Book]
+    recommended_books: List[Book],
+    last_human_message: HumanMessage
 ) -> BaseMessage:
     """
     Generate follow-up feedback using structured recommendations.
@@ -73,7 +73,7 @@ def _recommended_feedback(
         previous_books=str(recommended_books),
         read_books=str(state.get("read_books", [])),
         preferences=str(state.get("preferences", [])),
-        user_query=state["messages"][-1].content
+        user_query=last_human_message.content
     )
     return talk_model.invoke([SystemMessage(content=prompt_text)])
 
@@ -96,13 +96,14 @@ def save_recommended_books(
 
     model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     structured_chain = model.with_structured_output(RecommendedBooks)
+    last_human_message: HumanMessage = _get_last_human_message(state=state)
 
     # Use system prompt for structured parsing
     prompt_text: str = system_recommender_prompt.format(
         previous_books=str(state.get("recommended_books", [])),
         read_books=str(state.get("read_books", [])),
         preferences=str(state.get("preferences", [])),
-        user_query=state["messages"][-1].content
+        user_query=last_human_message.content
     )
     parsed = structured_chain.invoke([SystemMessage(content=prompt_text)])
     output: Dict[str, Union[List[Book], AIMessage]] = {}
@@ -110,7 +111,8 @@ def save_recommended_books(
     if parsed.recommended_books:
         feedback: BaseMessage = _recommended_feedback(
             state=state,
-            recommended_books=parsed.recommended_books
+            recommended_books=parsed.recommended_books,
+            last_human_message=last_human_message
         )
         output["recommended_books"] = parsed.recommended_books
         output["messages"] = AIMessage(content=feedback.content)
@@ -120,7 +122,8 @@ def save_recommended_books(
 
 def _preference_feedback(
     state: InternalState,
-    preferences: Preferences
+    preferences: Preferences,
+    last_human_message: HumanMessage
 ) -> BaseMessage:
     """
     Generate follow-up message after capturing user preferences.
@@ -137,7 +140,7 @@ def _preference_feedback(
         previous_books=str(state.get("recommended_books", [])),
         read_books=str(state.get("read_books", [])),
         preferences=str(preferences),
-        user_query=state["messages"][-1].content
+        user_query=last_human_message.content
     )
     return pref_model.invoke([SystemMessage(content=prompt_text)])
 
@@ -160,14 +163,16 @@ def save_preferences(
 
     model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     structured_chain = model.with_structured_output(Preferences)
+    last_human_message: HumanMessage = _get_last_human_message(state=state)
 
-    parsed = structured_chain.invoke([state["messages"][-1]])
+    parsed = structured_chain.invoke([last_human_message])
     output: Dict[str, Union[List[str], AIMessage]] = {}
 
     if parsed.preferences:
         feedback: BaseMessage = _preference_feedback(
             state=state,
-            preferences=parsed
+            preferences=parsed,
+            last_human_message=last_human_message
         )
         output["preferences"] = parsed.preferences
         output["messages"] = AIMessage(content=feedback.content)
@@ -177,7 +182,8 @@ def save_preferences(
 
 def _read_feedback(
     state: InternalState,
-    read_books: List[Book]
+    read_books: List[Book],
+    last_human_message: HumanMessage
 ) -> BaseMessage:
     """
     Generate feedback message after capturing read books.
@@ -194,7 +200,7 @@ def _read_feedback(
         previous_books=str(state.get("recommended_books", [])),
         read_books=str(read_books),
         preferences=str(state.get("preferences", [])),
-        user_query=state["messages"][-1].content
+        user_query=last_human_message.content
     )
     return read_model.invoke([SystemMessage(content=prompt_text)])
 
@@ -217,14 +223,16 @@ def save_read_books(
 
     model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     structured_chain = model.with_structured_output(ReadBooks)
+    last_human_message: HumanMessage = _get_last_human_message(state=state)
 
-    parsed = structured_chain.invoke([state["messages"][-1]])
+    parsed = structured_chain.invoke([last_human_message])
     output: Dict[str, Union[List[Book], AIMessage]] = {}
 
     if parsed.read_books:
         feedback: BaseMessage = _read_feedback(
             state=state,
-            read_books=parsed.read_books
+            read_books=parsed.read_books,
+            last_human_message=last_human_message
         )
         output["read_books"] = parsed.read_books
         output["messages"] = AIMessage(content=feedback.content)
@@ -232,7 +240,19 @@ def save_read_books(
     return output
 
 
-def get_intention(state: InternalState) -> str:
+def empty_node(state: InternalState) -> dict:
+    return {}
+
+
+def _get_last_human_message(state: InternalState) -> HumanMessage:
+    for message in reversed(state.get("messages", [])):
+        if isinstance(message, HumanMessage):
+            return message
+
+    return HumanMessage(content="")
+
+
+def get_intention(state: InternalState) -> list[str]:
     """
     Determine routing intention based on the user's last message.
 
@@ -244,9 +264,12 @@ def get_intention(state: InternalState) -> str:
     """
     print("Getting intention")
 
-    router = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, max_tokens=2)
+    router = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, max_tokens=12)
     prompt_text: str = initial_router.format(
         user_intention=state["messages"][-1].content
     )
-    result = router.invoke([SystemMessage(content=prompt_text)])
-    return result.content
+    tags = router.invoke([SystemMessage(content=prompt_text)])
+
+    result = tags.content.split(",")
+
+    return result
