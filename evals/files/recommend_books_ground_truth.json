@@ -1,0 +1,809 @@
+[
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm looking for some good mystery novels. I really enjoy psychological thrillers and detective stories."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": []
+    },
+    "expected_criteria": {
+      "genre_relevance": ["mystery", "psychological thriller", "detective", "crime"],
+      "min_recommendations": 2,
+      "max_recommendations": 5,
+      "should_include_authors": false,
+      "should_avoid_genres": ["romance", "fantasy", "sci-fi"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Can you recommend some fantasy books with strong world-building? I love epic fantasy series."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": []
+    },
+    "expected_criteria": {
+      "genre_relevance": ["fantasy", "epic fantasy", "high fantasy"],
+      "min_recommendations": 2,
+      "max_recommendations": 5,
+      "should_include_authors": false,
+      "should_avoid_genres": ["mystery", "romance", "horror"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm interested in science fiction novels that explore philosophical themes. Any suggestions?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": []
+    },
+    "expected_criteria": {
+      "genre_relevance": ["science fiction", "sci-fi", "philosophical", "speculative fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 5,
+      "should_include_authors": false,
+      "should_avoid_genres": ["romance", "horror", "mystery"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I enjoyed reading The Alchemist and Life of Pi. What similar books would you recommend?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "The Alchemist", "author": "Paulo Coelho"},
+        {"name": "Life of Pi", "author": "Yann Martel"}
+      ],
+      "preferences": []
+    },
+    "expected_criteria": {
+      "genre_relevance": ["philosophical", "spiritual journey", "literary fiction", "magical realism"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["horror", "mystery", "hard sci-fi"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I love dystopian novels like 1984 and The Handmaid's Tale. Any recommendations for similar books?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "1984", "author": "George Orwell"},
+        {"name": "The Handmaid's Tale", "author": "Margaret Atwood"}
+      ],
+      "preferences": []
+    },
+    "expected_criteria": {
+      "genre_relevance": ["dystopian", "political fiction", "speculative fiction", "social commentary"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["romance", "fantasy", "comedy"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I prefer shorter books under 300 pages and I enjoy contemporary fiction. What would you suggest?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["shorter books under 300 pages", "contemporary fiction"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["contemporary fiction", "literary fiction", "modern literature"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["epic fantasy", "long historical novels"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I really enjoy memoirs and autobiographies. I've read Michelle Obama's Becoming and loved it. Any similar recommendations?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "Becoming", "author": "Michelle Obama"}
+      ],
+      "preferences": ["memoirs", "autobiographies"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["memoir", "autobiography", "biography", "non-fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["fiction", "fantasy", "sci-fi"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I want something different from what I usually read. I've been reading a lot of thrillers lately and want to branch out."
+      }
+    ],
+    "context": {
+      "recommended_books": [
+        {"name": "Gone Girl", "author": "Gillian Flynn"},
+        {"name": "The Girl with the Dragon Tattoo", "author": "Stieg Larsson"}
+      ],
+      "read_books": [
+        {"name": "The Silent Patient", "author": "Alex Michaelides"}
+      ],
+      "preferences": []
+    },
+    "expected_criteria": {
+      "genre_relevance": ["literary fiction", "historical fiction", "romance", "memoir", "fantasy"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["thriller", "mystery", "crime"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I love books with strong female protagonists. I particularly enjoy fantasy and sci-fi with well-developed female characters."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["strong female protagonists", "fantasy", "sci-fi"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["fantasy", "sci-fi", "female protagonist", "speculative fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["male-dominated genres"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Can you recommend some cozy mysteries? I prefer puzzles without too much violence or gore."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["cozy mysteries", "puzzles without violence"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["cozy mystery", "puzzle", "amateur detective", "gentle mystery"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["violent crime", "horror", "hard-boiled detective"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm in a reading slump and need something really engaging that will hook me from the first page. Any page-turners you'd recommend?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": []
+    },
+    "expected_criteria": {
+      "genre_relevance": ["thriller", "page-turner", "suspense", "fast-paced"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["slow literary fiction", "dense philosophical works"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I love historical fiction set in World War II. I've read All the Light We Cannot See and The Book Thief. What else would you suggest?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "All the Light We Cannot See", "author": "Anthony Doerr"},
+        {"name": "The Book Thief", "author": "Markus Zusak"}
+      ],
+      "preferences": ["historical fiction", "World War II setting"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["historical fiction", "World War II", "wartime stories", "20th century"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["fantasy", "sci-fi", "contemporary romance"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I enjoy books that make me laugh. Can you recommend some humorous fiction or funny memoirs?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["humorous books", "comedy"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["humor", "comedy", "funny memoir", "satirical fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["tragedy", "horror", "serious literary fiction"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm interested in books about different cultures. I particularly enjoy stories that give me insight into experiences different from my own."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["diverse cultures", "different perspectives"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["multicultural", "diverse voices", "international literature", "cultural fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["purely Western-centric stories"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I want to read more classic literature but I'm intimidated by really long books. Any shorter classics you'd recommend?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["classic literature", "shorter books"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["classic literature", "literary classics", "canonical works"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["contemporary fiction", "modern thrillers"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I love books that blend reality with magical elements. I really enjoyed The Night Circus and The Invisible Life of Addie LaRue."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "The Night Circus", "author": "Erin Morgenstern"},
+        {"name": "The Invisible Life of Addie LaRue", "author": "V.E. Schwab"}
+      ],
+      "preferences": ["magical realism", "blend of reality and magic"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["magical realism", "fantasy", "atmospheric fiction", "literary fantasy"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["hard sci-fi", "mystery", "historical non-fiction"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I need a good beach read for my vacation. Something light and entertaining that I can read by the pool."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["light reading", "entertaining", "vacation read"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["beach read", "light fiction", "romance", "entertaining"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["heavy literary fiction", "depressing themes", "complex philosophy"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm fascinated by space and astronomy. Can you recommend some hard science fiction that's scientifically accurate?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["space", "astronomy", "scientifically accurate"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["hard sci-fi", "space exploration", "astronomy", "scientific accuracy"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["fantasy", "soft sci-fi", "romance"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I enjoy character-driven novels where the focus is on relationships and personal growth rather than plot."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["character-driven", "relationships", "personal growth"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["character-driven", "literary fiction", "relationship stories", "personal growth"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["action-heavy", "plot-driven thrillers", "adventure"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I want to learn about social justice issues through fiction. Books that deal with important social topics but are still engaging stories."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["social justice", "important social topics", "engaging stories"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["social justice", "social issues", "political fiction", "activist literature"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["escapist fiction", "pure entertainment", "apolitical stories"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I loved The Seven Moons of Maali Almeida and Klara and the Sun. I'm drawn to experimental narrative styles and unique storytelling approaches."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "The Seven Moons of Maali Almeida", "author": "Shehan Karunatilaka"},
+        {"name": "Klara and the Sun", "author": "Kazuo Ishiguro"}
+      ],
+      "preferences": ["experimental narrative", "unique storytelling"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["experimental fiction", "literary fiction", "innovative narrative", "speculative fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["conventional storytelling", "formulaic fiction"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm looking for horror novels that focus more on psychological terror than gore. I loved The Haunting of Hill House."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "The Haunting of Hill House", "author": "Shirley Jackson"}
+      ],
+      "preferences": ["psychological horror", "no gore"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["psychological horror", "atmospheric horror", "supernatural", "literary horror"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["splatter horror", "gore", "violent horror"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm interested in books about artificial intelligence and technology's impact on society. Both fiction and non-fiction would be great."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["artificial intelligence", "technology impact", "society"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["artificial intelligence", "technology", "futurism", "sci-fi", "non-fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["fantasy", "historical fiction", "romance"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I've been reading a lot of Western authors. Can you recommend some excellent books by authors from Asia, Africa, or Latin America?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["diverse authors", "global literature", "non-Western perspectives"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["global literature", "diverse voices", "international authors", "world literature"],
+      "min_recommendations": 3,
+      "max_recommendations": 5,
+      "should_include_authors": false,
+      "should_avoid_genres": ["Western-centric stories"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I love books about food and cooking. I've read Kitchen Confidential and Salt Fat Acid Heat. Any other food-related books you'd suggest?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["food", "cooking", "culinary"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["food writing", "culinary", "cooking", "memoir", "non-fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["unrelated to food", "pure fiction without culinary themes"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I want to understand more about mental health through literature. Books that explore depression, anxiety, or other mental health topics sensitively."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["mental health", "depression", "anxiety", "sensitive treatment"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["mental health", "psychology", "memoir", "literary fiction", "self-help"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["stigmatizing portrayals", "purely clinical texts"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm planning a trip to Japan and would love to read some Japanese literature beforehand. Both classic and contemporary would be interesting."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["Japanese literature", "travel preparation", "cultural understanding"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["Japanese literature", "Japanese authors", "Japanese culture", "contemporary Japanese fiction"],
+      "min_recommendations": 3,
+      "max_recommendations": 5,
+      "should_include_authors": false,
+      "should_avoid_genres": ["non-Japanese authors", "unrelated to Japanese culture"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I really enjoyed The Martian and Project Hail Mary. I love science fiction that's optimistic and problem-solving focused."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["optimistic sci-fi", "problem-solving", "hard science fiction"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["optimistic sci-fi", "hard science fiction", "problem-solving", "survival"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["dystopian", "dark sci-fi", "pessimistic futures"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm interested in books about entrepreneurship and business, but I prefer stories and narratives over dry business advice."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["entrepreneurship", "business", "narrative style", "stories"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["entrepreneurship", "business narrative", "startup stories", "business memoir"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["dry business manuals", "academic texts", "pure theory"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I love epistolary novels - books written as letters, emails, or documents. I've read Dracula and The Color Purple in this format."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["epistolary novels", "letters", "documents", "unique format"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["epistolary", "letters", "documents", "diary format", "unique narrative structure"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["traditional narrative", "standard prose"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I want to read more poetry but I'm intimidated by it. Can you recommend some accessible poetry collections or poetry-adjacent books?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["poetry", "accessible", "beginner-friendly"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["accessible poetry", "poetry collections", "verse novels", "lyrical prose"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["dense academic poetry", "overly complex verse"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm looking for books about climate change and environmental issues. I'd prefer a mix of hopeful solutions and realistic challenges."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["climate change", "environmental issues", "hopeful solutions", "realistic"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["climate change", "environmental", "sustainability", "eco-fiction", "nature writing"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["climate denial", "purely dystopian without hope"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm fascinated by true crime but I prefer books that focus on the investigation process rather than glorifying violence. Any recommendations?"
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["true crime", "investigation process", "no violence glorification"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["true crime", "investigation", "procedural", "detective work"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["sensationalized violence", "exploitative crime stories"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I loved reading The Midnight Library and Anxious People. I'm drawn to books that are both heartwarming and thought-provoking."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [
+        {"name": "The Midnight Library", "author": "Matt Haig"},
+        {"name": "Anxious People", "author": "Fredrik Backman"}
+      ],
+      "preferences": ["heartwarming", "thought-provoking", "philosophical", "uplifting"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["heartwarming", "philosophical fiction", "uplifting", "contemporary fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["dark themes", "depressing content", "cynical fiction"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I want to read more graphic novels and comics. I'm interested in both superhero stories and more literary graphic novels."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["graphic novels", "comics", "superhero", "literary"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["graphic novels", "comics", "visual storytelling", "sequential art"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["prose-only books", "text-heavy novels"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm interested in books about music and musicians. Both fiction and non-fiction would be great, especially books about jazz or classical music."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["music", "musicians", "jazz", "classical music"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["music", "musicians", "jazz", "classical", "musical biography"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["unrelated to music", "purely technical music theory"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I've been really stressed lately and need something escapist and fun. Maybe some light fantasy or adventure stories that won't be too heavy."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["escapist", "fun", "light", "stress relief"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["light fantasy", "adventure", "escapist", "fun", "feel-good"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["heavy themes", "dark content", "stressful plots"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm looking for books that explore the immigrant experience in America. I'm particularly interested in stories from the past 50 years."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["immigrant experience", "America", "contemporary", "past 50 years"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["immigration", "American experience", "cultural identity", "contemporary fiction"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["historical immigration before 1970s", "non-American settings"]
+    }
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I want to read some books written by indigenous authors. I'm interested in both fiction and non-fiction that explores indigenous perspectives and experiences."
+      }
+    ],
+    "context": {
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["indigenous authors", "indigenous perspectives", "diverse voices"]
+    },
+    "expected_criteria": {
+      "genre_relevance": ["indigenous authors", "indigenous experience", "native voices", "cultural perspectives"],
+      "min_recommendations": 2,
+      "max_recommendations": 4,
+      "should_include_authors": false,
+      "should_avoid_genres": ["non-indigenous authors writing about indigenous topics"]
+    }
+  }
+]
