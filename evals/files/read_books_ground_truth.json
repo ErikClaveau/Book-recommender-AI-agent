@@ -1,0 +1,734 @@
+[
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "This month I've finished reading The Midnight Library by Matt Haig, Dune by Frank Herbert, and Where the Crawdads Sing by Delia Owens. All three were amazing in their own way."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Midnight Library",
+        "author": "Matt Haig"
+      },
+      {
+        "name": "Dune",
+        "author": "Frank Herbert"
+      },
+      {
+        "name": "Where the Crawdads Sing",
+        "author": "Delia Owens"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I recently completed several books: The Night Circus by Erin Morgenstern, Circe by Madeline Miller, The Invisible Life of Addie LaRue by V.E. Schwab, and The Vanishing Half by Brit Bennett."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Night Circus",
+        "author": "Erin Morgenstern"
+      },
+      {
+        "name": "Circe",
+        "author": "Madeline Miller"
+      },
+      {
+        "name": "The Invisible Life of Addie LaRue",
+        "author": "V.E. Schwab"
+      },
+      {
+        "name": "The Vanishing Half",
+        "author": "Brit Bennett"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Finished reading The Seven Husbands of Evelyn Hugo by Taylor Jenkins Reid and The Song of Achilles by Madeline Miller. Both absolutely captivating novels that I couldn't put down."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Seven Husbands of Evelyn Hugo",
+        "author": "Taylor Jenkins Reid"
+      },
+      {
+        "name": "The Song of Achilles",
+        "author": "Madeline Miller"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Just completed my reading list for this quarter: Project Hail Mary by Andy Weir, The Silent Patient by Alex Michaelides, Klara and the Sun by Kazuo Ishiguro, and The Guest List by Lucy Foley."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Project Hail Mary",
+        "author": "Andy Weir"
+      },
+      {
+        "name": "The Silent Patient",
+        "author": "Alex Michaelides"
+      },
+      {
+        "name": "Klara and the Sun",
+        "author": "Kazuo Ishiguro"
+      },
+      {
+        "name": "The Guest List",
+        "author": "Lucy Foley"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Last week I finished The Thursday Murder Club by Richard Osman, Normal People by Sally Rooney, and The Power by Naomi Alderman. What a diverse selection that turned out to be!"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Thursday Murder Club",
+        "author": "Richard Osman"
+      },
+      {
+        "name": "Normal People",
+        "author": "Sally Rooney"
+      },
+      {
+        "name": "The Power",
+        "author": "Naomi Alderman"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Books finished during my mystery novel phase: The Da Vinci Code by Dan Brown, In the Woods by Tana French, The Murder of Roger Ackroyd by Agatha Christie, and The Maltese Falcon by Dashiell Hammett."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Da Vinci Code",
+        "author": "Dan Brown"
+      },
+      {
+        "name": "In the Woods",
+        "author": "Tana French"
+      },
+      {
+        "name": "The Murder of Roger Ackroyd",
+        "author": "Agatha Christie"
+      },
+      {
+        "name": "The Maltese Falcon",
+        "author": "Dashiell Hammett"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently completed some poetry and short story collections: The Sun and Her Flowers by Rupi Kaur, Nine Stories by J.D. Salinger, Milk and Honey by Rupi Kaur, and Interpreter of Maladies by Jhumpa Lahiri."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Sun and Her Flowers",
+        "author": "Rupi Kaur"
+      },
+      {
+        "name": "Nine Stories",
+        "author": "J.D. Salinger"
+      },
+      {
+        "name": "Milk and Honey",
+        "author": "Rupi Kaur"
+      },
+      {
+        "name": "Interpreter of Maladies",
+        "author": "Jhumpa Lahiri"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I just finished The Alchemist by Paulo Coelho and Life of Pi by Yann Martel. Both were incredible spiritual journeys. Can you recommend something similar?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Alchemist",
+        "author": "Paulo Coelho"
+      },
+      {
+        "name": "Life of Pi",
+        "author": "Yann Martel"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Finished 1984 by George Orwell, The Handmaid's Tale by Margaret Atwood, and Brave New World by Aldous Huxley last month. I'm really drawn to dystopian themes now - any suggestions for more books like these?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "1984",
+        "author": "George Orwell"
+      },
+      {
+        "name": "The Handmaid's Tale",
+        "author": "Margaret Atwood"
+      },
+      {
+        "name": "Brave New World",
+        "author": "Aldous Huxley"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Just completed The Road by Cormac McCarthy and No Country for Old Men by Cormac McCarthy. I've discovered I really prefer darker, more complex narratives. What would you recommend next?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Road",
+        "author": "Cormac McCarthy"
+      },
+      {
+        "name": "No Country for Old Men",
+        "author": "Cormac McCarthy"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently finished The Hobbit by J.R.R. Tolkien, The Name of the Wind by Patrick Rothfuss, and The Way of Kings by Brandon Sanderson. After reading these, I realize I'm really into fantasy with detailed world-building. Any recommendations?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Hobbit",
+        "author": "J.R.R. Tolkien"
+      },
+      {
+        "name": "The Name of the Wind",
+        "author": "Patrick Rothfuss"
+      },
+      {
+        "name": "The Way of Kings",
+        "author": "Brandon Sanderson"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Completed reading The Girl with the Dragon Tattoo by Stieg Larsson, Gone Girl by Gillian Flynn, and The Silent Patient by Alex Michaelides. I've noticed I'm drawn to psychological thrillers lately. What should I read next?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Girl with the Dragon Tattoo",
+        "author": "Stieg Larsson"
+      },
+      {
+        "name": "Gone Girl",
+        "author": "Gillian Flynn"
+      },
+      {
+        "name": "The Silent Patient",
+        "author": "Alex Michaelides"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I finished The Time Traveler's Wife by Audrey Niffenegger and Me Before You by Jojo Moyes. After reading these, I realize I prefer books that aren't too long - maybe around 300 pages max. Any similar emotional reads you'd suggest?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Time Traveler's Wife",
+        "author": "Audrey Niffenegger"
+      },
+      {
+        "name": "Me Before You",
+        "author": "Jojo Moyes"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Just completed Educated by Tara Westover, Becoming by Michelle Obama, and Born a Crime by Trevor Noah. I've discovered I really enjoy memoirs and autobiographies. Can you recommend some shorter ones - I prefer books under 350 pages?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Educated",
+        "author": "Tara Westover"
+      },
+      {
+        "name": "Becoming",
+        "author": "Michelle Obama"
+      },
+      {
+        "name": "Born a Crime",
+        "author": "Trevor Noah"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Finished The Martian by Andy Weir, Recursion by Blake Crouch, and Dark Matter by Blake Crouch last month. I'm realizing I prefer hard sci-fi with complex concepts but accessible writing. Got any recommendations for books with similar characteristics?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Martian",
+        "author": "Andy Weir"
+      },
+      {
+        "name": "Recursion",
+        "author": "Blake Crouch"
+      },
+      {
+        "name": "Dark Matter",
+        "author": "Blake Crouch"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I just finished reading Eleanor Oliphant Is Completely Fine by Gail Honeyman, A Man Called Ove by Fredrik Backman, and The Midnight Library by Matt Haig. These books taught me that I love character-driven stories with humor and heart. I also prefer standalone novels over series. What would you recommend?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Eleanor Oliphant Is Completely Fine",
+        "author": "Gail Honeyman"
+      },
+      {
+        "name": "A Man Called Ove",
+        "author": "Fredrik Backman"
+      },
+      {
+        "name": "The Midnight Library",
+        "author": "Matt Haig"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently completed Circe by Madeline Miller and The Invisible Life of Addie LaRue by V.E. Schwab. After these reads, I've realized I'm really into mythology retellings and stories with immortal characters. What should I add to my reading list?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Circe",
+        "author": "Madeline Miller"
+      },
+      {
+        "name": "The Invisible Life of Addie LaRue",
+        "author": "V.E. Schwab"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I finished The Seven Moons of Maali Almeida by Shehan Karunatilaka and The Atlas Six by Olivie Blake last week. Lately I've been thinking about how much I enjoy books with unconventional narrative structures and magical realism elements."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Seven Moons of Maali Almeida",
+        "author": "Shehan Karunatilaka"
+      },
+      {
+        "name": "The Atlas Six",
+        "author": "Olivie Blake"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Just completed The Thursday Murder Club by Richard Osman, The Sweetness at the Bottom of the Pie by Alan Bradley, and Louise Penny's Still Life. I've come to realize I prefer cozy mysteries over violent crime novels."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Thursday Murder Club",
+        "author": "Richard Osman"
+      },
+      {
+        "name": "The Sweetness at the Bottom of the Pie",
+        "author": "Alan Bradley"
+      },
+      {
+        "name": "Still Life",
+        "author": "Louise Penny"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Finished The Vanishing Half by Brit Bennett and Such a Fun Age by Kiley Reid. After reading these, I've noticed I'm drawn to contemporary fiction that explores social issues with nuance."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Vanishing Half",
+        "author": "Brit Bennett"
+      },
+      {
+        "name": "Such a Fun Age",
+        "author": "Kiley Reid"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently completed Pachinko by Min Jin Lee, Homegoing by Yaa Gyasi, and The Inheritance of Loss by Kiran Desai. I've realized I'm particularly drawn to multigenerational family sagas that span different cultures and time periods."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Pachinko",
+        "author": "Min Jin Lee"
+      },
+      {
+        "name": "Homegoing",
+        "author": "Yaa Gyasi"
+      },
+      {
+        "name": "The Inheritance of Loss",
+        "author": "Kiran Desai"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I finished The Water Dancer by Ta-Nehisi Coates and Colson Whitehead's The Underground Railroad this month. Both dealt with slavery through different narrative approaches, and I've discovered I prefer historical fiction that uses magical realism or speculative elements to explore difficult topics."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Water Dancer",
+        "author": "Ta-Nehisi Coates"
+      },
+      {
+        "name": "The Underground Railroad",
+        "author": "Colson Whitehead"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Just completed Anxious People by Fredrik Backman, Beach Read by Emily Henry, and The House in the Cerulean Sea by TJ Klune. These books reminded me how much I appreciate feel-good stories, especially during stressful times."
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Anxious People",
+        "author": "Fredrik Backman"
+      },
+      {
+        "name": "Beach Read",
+        "author": "Emily Henry"
+      },
+      {
+        "name": "The House in the Cerulean Sea",
+        "author": "TJ Klune"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently finished The Poppy War by R.F. Kuang, The Priory of the Orange Tree by Samantha Shannon, and The Bear and the Nightingale by Katherine Arden. I'm really enjoying high fantasy with complex world-building and strong female protagonists - could you suggest more like these?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Poppy War",
+        "author": "R.F. Kuang"
+      },
+      {
+        "name": "The Priory of the Orange Tree",
+        "author": "Samantha Shannon"
+      },
+      {
+        "name": "The Bear and the Nightingale",
+        "author": "Katherine Arden"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Completed Klara and the Sun by Kazuo Ishiguro, Station Eleven by Emily St. John Mandel, and Never Let Me Go by Kazuo Ishiguro. I've noticed I really enjoy literary science fiction that focuses more on human emotions than technology. What else might I like?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Klara and the Sun",
+        "author": "Kazuo Ishiguro"
+      },
+      {
+        "name": "Station Eleven",
+        "author": "Emily St. John Mandel"
+      },
+      {
+        "name": "Never Let Me Go",
+        "author": "Kazuo Ishiguro"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I just finished The Goldfinch by Donna Tartt, Little Fires Everywhere by Celeste Ng, and The Secret History by Donna Tartt. These longer, character-driven novels really captivated me. I'm finding I prefer books that take their time to develop complex characters and relationships - any similar recommendations?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Goldfinch",
+        "author": "Donna Tartt"
+      },
+      {
+        "name": "Little Fires Everywhere",
+        "author": "Celeste Ng"
+      },
+      {
+        "name": "The Secret History",
+        "author": "Donna Tartt"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently completed The Hate U Give by Angie Thomas, On Earth We're Briefly Gorgeous by Ocean Vuong, and Americanah by Chimamanda Ngozi Adichie. I've realized I'm particularly drawn to diverse voices and stories that challenge my perspective. Can you recommend more books like these?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Hate U Give",
+        "author": "Angie Thomas"
+      },
+      {
+        "name": "On Earth We're Briefly Gorgeous",
+        "author": "Ocean Vuong"
+      },
+      {
+        "name": "Americanah",
+        "author": "Chimamanda Ngozi Adichie"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Finished The City We Became by N.K. Jemisin, Mexican Gothic by Silvia Moreno-Garcia, and The Only Good Indians by Stephen Graham Jones last month. I'm discovering I love speculative fiction that blends horror elements with social commentary. What would you suggest next?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The City We Became",
+        "author": "N.K. Jemisin"
+      },
+      {
+        "name": "Mexican Gothic",
+        "author": "Silvia Moreno-Garcia"
+      },
+      {
+        "name": "The Only Good Indians",
+        "author": "Stephen Graham Jones"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Just completed Babel by R.F. Kuang, The Jasmine Throne by Tasha Suri, and She Who Became the Sun by Shelley Parker-Chan. I'm realizing I prefer fantasy novels that are inspired by non-Western cultures and mythologies. Any recommendations for similar books?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Babel",
+        "author": "R.F. Kuang"
+      },
+      {
+        "name": "The Jasmine Throne",
+        "author": "Tasha Suri"
+      },
+      {
+        "name": "She Who Became the Sun",
+        "author": "Shelley Parker-Chan"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently finished The Testaments by Margaret Atwood, The Power by Naomi Alderman, and Red Clocks by Leni Zumas. After reading these, I've noticed I'm drawn to feminist dystopian fiction. I also prefer books that are part of a conversation about current social issues. What should I read next?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Testaments",
+        "author": "Margaret Atwood"
+      },
+      {
+        "name": "The Power",
+        "author": "Naomi Alderman"
+      },
+      {
+        "name": "Red Clocks",
+        "author": "Leni Zumas"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "I finished The Broken Earth trilogy by N.K. Jemisin, The Left Hand of Darkness by Ursula K. Le Guin, and Parable of the Sower by Octavia Butler this quarter. I've discovered I really love science fiction by women authors that explores social and political themes. Can you recommend more books in this vein?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Broken Earth trilogy",
+        "author": "N.K. Jemisin"
+      },
+      {
+        "name": "The Left Hand of Darkness",
+        "author": "Ursula K. Le Guin"
+      },
+      {
+        "name": "Parable of the Sower",
+        "author": "Octavia Butler"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Just completed The Hundred-Year-Old Man Who Climbed Out of the Window and Disappeared by Jonas Jonasson, A Good Omens by Terry Pratchett and Neil Gaiman, and The Hitchhiker's Guide to the Galaxy by Douglas Adams. I've realized I really enjoy humorous fiction with absurd situations. What similar books would you recommend?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Hundred-Year-Old Man Who Climbed Out of the Window and Disappeared",
+        "author": "Jonas Jonasson"
+      },
+      {
+        "name": "Good Omens",
+        "author": "Terry Pratchett and Neil Gaiman"
+      },
+      {
+        "name": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Recently finished Big Little Lies by Liane Moriarty, The Woman in the Window by A.J. Finn, and Sharp Objects by Gillian Flynn. These psychological thrillers really kept me hooked, and I've noticed I prefer unreliable narrators and domestic settings. Any suggestions for more books like these?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "Big Little Lies",
+        "author": "Liane Moriarty"
+      },
+      {
+        "name": "The Woman in the Window",
+        "author": "A.J. Finn"
+      },
+      {
+        "name": "Sharp Objects",
+        "author": "Gillian Flynn"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Completed The Invisible Bridge by Julie Orringer, All the Light We Cannot See by Anthony Doerr, and The Book Thief by Markus Zusak. I'm finding that I'm really drawn to historical fiction set during World War II, especially stories that focus on ordinary people's experiences. I also prefer books with beautiful, lyrical prose. What would you recommend?"
+      }
+    ],
+    "expected_books": [
+      {
+        "name": "The Invisible Bridge",
+        "author": "Julie Orringer"
+      },
+      {
+        "name": "All the Light We Cannot See",
+        "author": "Anthony Doerr"
+      },
+      {
+        "name": "The Book Thief",
+        "author": "Markus Zusak"
+      }
+    ]
+  }
+]
