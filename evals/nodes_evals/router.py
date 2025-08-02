@@ -4,11 +4,6 @@ from dotenv import load_dotenv
 
 from langchain_core.messages import HumanMessage
 from langsmith import Client
-from sklearn.metrics import (
-    precision_recall_fscore_support,
-    accuracy_score,
-    confusion_matrix,
-)
 
 from evals.utils.constants import ROUTER_GROUND_TRUTH_DATASET, ROUTER_EVALUATION_RUN
 from evals.utils.paths import ROUTER_GROUND_TRUTH
@@ -23,6 +18,9 @@ client = Client()
 
 
 def load_dataset() -> None:
+    """
+    Loads the dataset from the ground truth file and creates a LangSmith dataset if it doesn't exist.
+    """
     with open(ROUTER_GROUND_TRUTH, "r", encoding="utf-8") as f:
         examples = json.load(f)
 
@@ -36,6 +34,15 @@ def load_dataset() -> None:
 
 
 async def run_intent(inputs: dict) -> dict:
+    """
+    Runs the intent detection for a given input.
+
+    Args:
+        inputs: A dictionary containing the input messages.
+
+    Returns:
+        A dictionary with the detected route.
+    """
     params = {"messages": [HumanMessage(content=inputs["messages"][0]["content"])]}
     intent = get_intention(InternalState(**params))
 
@@ -43,10 +50,30 @@ async def run_intent(inputs: dict) -> dict:
 
 
 def accuracy(outputs: dict, reference_outputs: dict) -> bool:
+    """
+    Calculates the accuracy of the intent detection.
+
+    Args:
+        outputs: The outputs from the intent detection.
+        reference_outputs: The reference outputs.
+
+    Returns:
+        True if the detected route is the same as the reference route, False otherwise.
+    """
     return outputs["route"] == reference_outputs["route"]
 
 
 def hamming_accuracy(outputs: dict, reference_outputs: dict) -> float:
+    """
+    Calculates the Hamming accuracy for the given outputs.
+
+    Args:
+        outputs: The dictionary containing the predicted route.
+        reference_outputs: The dictionary containing the true route.
+
+    Returns:
+        The Hamming accuracy score.
+    """
     correct = 0
 
     for lbl in INITIAL_ROUTER_TAGS.keys():
@@ -56,6 +83,16 @@ def hamming_accuracy(outputs: dict, reference_outputs: dict) -> float:
 
 
 def jaccard_index(outputs: dict, reference_outputs: dict) -> float:
+    """
+    Calculates the Jaccard index for the given outputs.
+
+    Args:
+        outputs: The dictionary containing the predicted route.
+        reference_outputs: The dictionary containing the true route.
+
+    Returns:
+        The Jaccard index score.
+    """
     y_true = set(reference_outputs["route"])
     y_hat = set(outputs["route"])
 
@@ -65,6 +102,9 @@ def jaccard_index(outputs: dict, reference_outputs: dict) -> float:
 
 
 async def run_evals():
+    """
+    Runs the evaluations for the intent detection.
+    """
     load_dataset()
 
     experiment_results = await client.aevaluate(
