@@ -49,12 +49,34 @@ User's request: {user_request}
 Recommended books:
 {recommended_books}
 
-Question: Are the recommended books contextually relevant given the user's history and preferences?
+Question: Are the recommended books contextually relevant to the user's reading history, preferences, and specific request?
 
 Instructions:
-- Consider if the recommendations make sense given what the user has read and liked
-- Check if they align with stated preferences
-- Evaluate if they appropriately respond to the specific request
+- Consider how well the recommendations align with the user's demonstrated preferences
+- Check if the books match the user's reading patterns and interests
+- Evaluate if the recommendations respond appropriately to the specific request
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+PREFERENCES_MATCH_EVALUATION_PROMPT = """You are evaluating whether extracted preferences accurately capture the user's stated reading preferences.
+
+User's original message:
+{user_message}
+
+Extracted preferences:
+{extracted_preferences}
+
+Expected preferences:
+{expected_preferences}
+
+Question: Do the extracted preferences accurately capture the user's stated reading preferences from their message?
+
+Instructions:
+- Consider semantic meaning, not just exact word matches
+- Check if the extracted preferences capture the same concepts as the expected ones
+- Allow for different phrasings that mean the same thing (e.g., "sci-fi" vs "science fiction")
+- Focus on whether someone with the extracted preferences would have similar reading tastes to someone with the expected preferences
 - Answer only "YES" or "NO"
 
 Answer:"""
