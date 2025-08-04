@@ -80,3 +80,82 @@ Instructions:
 - Answer only "YES" or "NO"
 
 Answer:"""
+
+DATA_ACCURACY_EVALUATION_PROMPT = """You are evaluating the accuracy of data retrieval in a book assistant's response.
+
+User's query: {user_query}
+
+Available data:
+- Read books: {read_books}
+- Recommended books: {recommended_books}
+- Preferences: {preferences}
+
+Assistant's response: {response}
+
+Question: Does the assistant's response accurately reflect the available data and correctly answer the user's query?
+
+Instructions:
+- Check if the response includes the correct books, authors, preferences, or other data elements
+- Verify that the assistant doesn't hallucinate or make up information not in the data
+- Ensure the response directly addresses what the user asked for
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+RESPONSE_COHERENCE_EVALUATION_PROMPT = """You are evaluating the coherence and helpfulness of a book assistant's response.
+
+User's query: {user_query}
+
+Assistant's response: {response}
+
+Question: Is the assistant's response coherent, well-structured, and helpful in addressing the user's query?
+
+Instructions:
+- Check if the response is logically organized and easy to understand
+- Verify that the response directly addresses the user's question
+- Ensure the tone is appropriate and helpful
+- Look for clear communication without unnecessary complexity
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+COMPLETENESS_EVALUATION_PROMPT = """You are evaluating the completeness of a book assistant's response.
+
+User's query: {user_query}
+
+Available data:
+- Read books: {read_books}
+- Recommended books: {recommended_books}
+- Preferences: {preferences}
+
+Assistant's response: {response}
+
+Expected content type: {expected_content_type}
+
+Question: Does the assistant's response provide complete information relevant to the user's query?
+
+Instructions:
+- Check if the response includes all relevant information available in the data
+- Verify that the assistant doesn't omit important details that would help the user
+- For queries asking for lists or summaries, ensure comprehensive coverage
+- Consider whether the response fully satisfies the user's information need
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+QUERY_UNDERSTANDING_EVALUATION_PROMPT = """You are evaluating whether a book assistant correctly understood the user's query.
+
+User's query: {user_query}
+
+Assistant's response: {response}
+
+Question: Did the assistant correctly understand and respond to what the user was asking for?
+
+Instructions:
+- Check if the response type matches what the user requested
+- Verify that the assistant didn't misinterpret the query
+- Ensure the response addresses the specific aspect of data the user asked about
+- Look for appropriate handling of edge cases (empty data, specific filters, etc.)
+- Answer only "YES" or "NO"
+
+Answer:"""
