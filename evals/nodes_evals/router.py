@@ -46,6 +46,7 @@ async def run_intent(inputs: dict) -> dict:
     params = {"messages": [HumanMessage(content=inputs["messages"][0]["content"])]}
     intent = get_intention(InternalState(**params))
 
+    # Return the full list of intents for proper evaluation
     return {"route": intent}
 
 
@@ -53,14 +54,21 @@ def accuracy(outputs: dict, reference_outputs: dict) -> bool:
     """
     Calculates the accuracy of the intent detection.
 
+    Compares sets of intents to handle cases where the order might differ.
+    Two predictions are considered equal if they contain the same intents,
+    regardless of order.
+
     Args:
         outputs: The outputs from the intent detection.
         reference_outputs: The reference outputs.
 
     Returns:
-        True if the detected route is the same as the reference route, False otherwise.
+        True if the detected route contains the same intents as the reference route, False otherwise.
     """
-    return outputs["route"] == reference_outputs["route"]
+    predicted_intents = set(outputs["route"])
+    reference_intents = set(reference_outputs["route"])
+
+    return predicted_intents == reference_intents
 
 
 def hamming_accuracy(outputs: dict, reference_outputs: dict) -> float:
@@ -110,7 +118,7 @@ async def run_evals():
     experiment_results = await client.aevaluate(
         run_intent,
         data=ROUTER_GROUND_TRUTH_DATASET,
-        experiment_prefix="initial_version",
+        experiment_prefix="gpt-4o-router-eval-optimized-v4",
         evaluators=[accuracy, hamming_accuracy, jaccard_index],
         max_concurrency=4,
     )

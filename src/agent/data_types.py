@@ -7,6 +7,30 @@ validation, and formatting throughout the recommendation workflow.
 """
 from pydantic import BaseModel, Field
 from typing import List
+from enum import Enum
+
+
+class IntentEnum(str, Enum):
+    """
+    Enumeration of possible intent classifications.
+    """
+    RECOMMENDATION = "recommendation"
+    TALK = "talk"
+    PREFERENCES = "preferences"
+    READ = "read"
+    END = "end"
+
+
+class IntentClassification(BaseModel):
+    """
+    Schema for intent classification results.
+
+    Attributes:
+        intents (List[IntentEnum]): List of detected intents for routing.
+    """
+    intents: List[IntentEnum] = Field(
+        ..., description="List of detected intent categories"
+    )
 
 
 class Book(BaseModel):
@@ -49,54 +73,52 @@ class RecommendedBooks(BaseModel):
         Returns:
             str: A formatted list of books, or an empty string if none.
         """
-        if self.recommended_books:
-            return "\n".join(str(book) for book in self.recommended_books)
-        return ""
+        if not self.recommended_books:
+            return ""
+        return "\n".join(str(book) for book in self.recommended_books)
 
 
 class Preferences(BaseModel):
     """
-    Schema for capturing user reading preferences or genres.
+    Schema for user reading preferences extracted from conversations.
 
     Attributes:
-        preferences (List[str]):
-            A list of user-specified reading preferences.
+        preferences (List[str]): List of user's reading preferences.
     """
     preferences: List[str] = Field(
-        ..., description="The different preferences the user has"
+        ..., description="List of user reading preferences"
     )
 
     def __str__(self) -> str:
         """
-        Return a newline-separated string of all user preferences.
+        Return a formatted string of user preferences.
 
         Returns:
             str: A formatted list of preferences, or an empty string if none.
         """
-        if self.preferences:
-            return "\n".join(self.preferences)
-        return ""
+        if not self.preferences:
+            return ""
+        return "\n".join(f"- {pref}" for pref in self.preferences)
 
 
 class ReadBooks(BaseModel):
     """
-    Schema for capturing the user's reading history.
+    Schema for books that the user has read.
 
     Attributes:
-        read_books (List[Book]):
-            List of Book instances that the user has already read.
+        read_books (List[Book]): List of books the user has read.
     """
     read_books: List[Book] = Field(
-        ..., description="The different books the user has read"
+        ..., description="List of books the user has read"
     )
 
     def __str__(self) -> str:
         """
-        Return a newline-separated string of all read books.
+        Return a formatted string of read books.
 
         Returns:
-            str: A formatted list of books, or an empty string if none.
+            str: A formatted list of read books, or an empty string if none.
         """
-        if self.read_books:
-            return "\n".join(str(book) for book in self.read_books)
-        return ""
+        if not self.read_books:
+            return ""
+        return "\n".join(str(book) for book in self.read_books)

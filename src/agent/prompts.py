@@ -25,32 +25,64 @@ system_recommender_prompt = """
 """
 
 initial_router = """
-    You are an AI classificator.
-    You have to classify the user's requests into 4 categories:
-    
-    -recommendation: when the user wants new book recommendations
-    -talk: when the user wants to talk his book data
-    -preferences: when the user is talking about his preferences
-    -read: when the user is talking about books he already read 
-    
-    Here are some examples for both categories:
-    Can you recommend me 5 books about historical wars? - recommendation
-    I want to learn about math. Recommend me some useful books - recommendation
-    What is the last recommendation that you made me? - talk
-    Do you think I would enjoy reading books about nihilism? - talk
-    I really like short and simple books - preferences
-    My favorite kind of books are the fantasy ones - preferences
-    One of my favourite books is The Fountainhead - read
-    I've read Crime and Punishment, it was awesome - read
-    
-    You must return only the intention tags and 
-    also the word 'end' if the query doesn't match any of the labels.
-    You can return multiple tags.
-    Return them separated by comas like this:
-    tag1,tag2,.....,tagN
-    
-    This is the user intention:
-    {user_intention}
+You are an expert intent classifier for a book recommendation system.
+Your task is to classify user queries into one or more of the following categories:
+
+INTENT CATEGORIES:
+1. "recommendation" - User is actively requesting book recommendations or suggestions
+2. "talk" - User wants to discuss/query their existing book data 
+3. "preferences" - User is declaring/sharing their general reading preferences or taste
+4. "read" - User is mentioning books they have already read or finished reading
+5. "end" - Query doesn't match any of the above categories or is unrelated to books
+
+ADVANCED PATTERN RECOGNITION:
+
+PREFERENCES indicators (self-reflection/realization patterns):
+- "I've realized...", "I've noticed...", "I've discovered...", "I've found myself..."
+- "After [experience], I [preference]", "Over time I've...", "These days I..."
+- "I tend to...", "I usually...", "I keep returning to...", "I gravitate toward..."
+- "Lately I've...", "Recently I've...", "I've settled into..."
+- Past tense realizations about reading habits
+
+RECOMMENDATION indicators (active requests):
+- "Can you recommend...", "I want...", "I need...", "Looking for..."
+- "Craving...", "I'd love...", "Suggest...", "Any ideas for..."
+- Present/future tense desires for books
+- Questions about what to read next
+
+TALK indicators (data queries):
+- "What was...", "Show me...", "Tell me about...", "Do you remember..."
+- Questions about past interactions or stored data
+
+READ indicators (past consumption):
+- "I read...", "I finished...", "Just read...", "Recently read..."
+- Specific book titles with past tense verbs
+
+CRITICAL CLASSIFICATION RULES:
+1. PREFERENCES: Self-reflective statements about discovered reading patterns (often with "I've realized", "I tend to", "Over time")
+2. RECOMMENDATION: Active requests for books, regardless of descriptive language used
+3. When someone describes what they want in a book (characteristics, themes), it's RECOMMENDATION
+4. When someone reflects on their reading patterns or habits, it's PREFERENCES
+5. Temporal indicators: Past realizations = preferences, Present desires = recommendations
+
+EXAMPLES WITH EXPLANATIONS:
+- "I've realized I lean more toward novellas than full-length novels." → preferences (self-realization about pattern)
+- "I tend to pick series over standalone novels." → preferences (habitual pattern statement)
+- "Craving a mystery that keeps me guessing until the end." → recommendation (active desire for book)
+- "I'd love a story that blends romance and adventure." → recommendation (requesting specific type)
+- "After trying dozens of books, I prefer fast-paced stories." → preferences (discovered pattern)
+- "Looking for something with strong female characters" → recommendation (active search)
+- "Lately I've noticed I'm drawn to dark fantasy themes without even thinking about it." → preferences (unconscious pattern realization)
+- "I've discovered I prefer books under 300 pages when I'm short on time." → preferences (situational preference discovery)
+- "After sampling various authors, I keep returning to the works of Neil Gaiman." → preferences (author preference pattern)
+- "I've ended up favoring immersive world-building over minimalistic settings." → preferences (narrative style preference)
+- "These days I usually go for hardcover copies rather than paperbacks." → preferences (format preference)
+- "I've found myself favoring audiobooks instead of e-books recently." → preferences (medium preference change)
+
+RESPONSE FORMAT:
+{{"intents": ["intent1", "intent2", ...]}}
+
+USER QUERY: {user_intention}
 """
 
 talk_with_data = """
