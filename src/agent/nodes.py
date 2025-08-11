@@ -9,7 +9,7 @@ from typing import Dict, List, Union
 from langchain_core.messages import AIMessage, SystemMessage, BaseMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
-from src.agent.data_types import RecommendedBooks, Book, Preferences, ReadBooks
+from src.agent.data_types import RecommendedBooks, Book, Preferences, ReadBooks, IntentClassification
 from src.agent.prompts import (
     initial_router,
     talk_with_data,
@@ -36,8 +36,8 @@ def thinking_node(state: InternalState) -> Dict[str, AIMessage]:
     """
     print("Executing thinking node")
 
-    # Initialize chat model for generating recommendations
-    chain: ChatOpenAI = ChatOpenAI(model="gpt-3.5-turbo")
+    # Initialize chat model for generating recommendations - upgraded to GPT-4o-mini
+    chain: ChatOpenAI = ChatOpenAI(model="gpt-4o-mini")
 
     # Build prompt with full context
     prompt_text: str = talk_with_data.format(
@@ -254,22 +254,40 @@ def _get_last_human_message(state: InternalState) -> HumanMessage:
 
 def get_intention(state: InternalState) -> list[str]:
     """
-    Determine routing intention based on the user's last message.
+    Determine routing intention based on the user's last message using structured output.
+
+    Uses an improved intent classifier with Pydantic validation to ensure
+    accurate intent detection and proper output formatting.
 
     Args:
-        state (InternalState): Contains last AIMessage under "messages".
+        state (InternalState): Contains last message under "messages".
 
     Returns:
-        str: Next state tag from INITIAL_ROUTER_TAGS.
+        list[str]: List of detected intent tags for routing decisions.
     """
     print("Getting intention")
 
-    router = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, max_tokens=12)
+    # Use GPT-4o for better intent classification
+    router = ChatOpenAI(model="gpt-4o", temperature=0)
+
+    # Create structured chain with Pydantic validation
+    structured_router = router.with_structured_output(IntentClassification)
+
     prompt_text: str = initial_router.format(
         user_intention=state["messages"][-1].content
     )
-    tags = router.invoke([SystemMessage(content=prompt_text)])
 
-    result = tags.content.split(",")
+    try:
+        # Get structured output with validation
+        classification = structured_router.invoke([SystemMessage(content=prompt_text)])
 
-    return result
+        # Convert enum values to strings for compatibility
+        result = [intent.value for intent in classification.intents]
+
+        print(f"Detected intents: {result}")
+        return result
+
+    except Exception as e:
+        print(f"Error in intent classification: {e}")
+        # Fallback to 'end' if classification fails
+        return ["end"]
