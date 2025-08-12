@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 from src.agent.nodes import (
     thinking_node,
     save_recommended_books,
-    get_intention,
+    get_intents,
     save_preferences,
     save_read_books,
     empty_node,
@@ -69,7 +69,7 @@ def build_recommendation_graph() -> CompiledStateGraph:
     # Conditional routing from CLEAN_NODE based on intention detection
     builder.add_conditional_edges(
         CLEAN_NODE,
-        get_intention,
+        get_intents,
         INITIAL_ROUTER_TAGS,
     )
 

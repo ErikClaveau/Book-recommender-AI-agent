@@ -319,9 +319,25 @@ def do_summary(state: InternalState) -> Dict[str, AIMessage]:
 
 
 def clean_message_history(state: InternalState) -> Dict[str, List]:
+    intents = get_intention(state=state)
+
     if len(state["messages"]) > 1:
         messages = [RemoveMessage(id=message.id) for message in state["messages"][:-2]]
 
-        return {"messages": messages}
+        return {"messages": messages,
+                "intents": intents}
 
-    return {}
+    return {"intents": intents}
+
+
+def get_intents(state: InternalState) -> List[str]:
+    """
+    Retrieve the list of intents from the current state.
+
+    Args:
+        state (InternalState): The current graph state containing intents.
+
+    Returns:
+        List[str]: List of intent tags.
+    """
+    return state.get("intents", [])

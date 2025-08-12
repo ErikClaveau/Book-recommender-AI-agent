@@ -179,7 +179,7 @@ summarizing_prompt = """
     
     Based on everything that has happened during our conversation, I want you to:
     
-    1. Acknowledge what we've accomplished together in this session
+    1. Acknowledge what we've accomplished together in this session. If the intents include "end", go to step 4.
     2. Reflect on how you've been able to help the user
     3. Naturally mention any new information you've learned about their preferences
     4. Offer a warm and helpful farewell
@@ -188,7 +188,8 @@ summarizing_prompt = """
     
     If we haven't done anything productive or the user has asked for something outside my capabilities, 
     explain in a friendly way that I'm here specifically to help with book recommendations
-    and that I'd love to assist them with that in the future.
+    and that I'd love to assist them with that in the future. If the user has said something like non ethical or 
+    illegal, explain that I can't help with that and that I'm here to help with book recommendations only.
     
     Session information:
     
