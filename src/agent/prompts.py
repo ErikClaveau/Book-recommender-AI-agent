@@ -173,3 +173,30 @@ read_feedback = """
     This is the user query:
     {user_query}
 """
+
+summarizing_prompt = """
+    You are a recommended book assistant. 
+    Your goal is to summarize all the the actions made during the assistance process.
+    During this process, you could have recommend books, save preferences from the user, save read books from the user
+    and talk with user about his stored info. 
+    It is also possible that you haven´t done anything and you came directly here. In this case, tell the user that
+    that you are not allowed to do that.
+    
+    actions done:
+    {intents}
+    
+    message history:
+    {message_history}
+    
+    previous books recommended:
+    {previous_books}
+
+    read book list:
+    {read_books}
+
+    preferences:
+    {preferences}
+
+    This is the user query:
+    {user_query}
+"""

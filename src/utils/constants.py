@@ -6,6 +6,8 @@ SAVE_RECOMMENDED_BOOKS: str = "save_recommended_books_node"
 SAVE_PREFERENCES: str = "save_preferences_node"
 SAVE_READ_BOOKS: str = "read_books_node"
 EMPTY_NODE: str = "empty_node"
+SUMMARY_NODE: str = "summary_node"
+CLEAN_NODE: str = "clean_node"
 
 # Initial router tags
 INITIAL_ROUTER_TAGS: dict = {
@@ -13,5 +15,5 @@ INITIAL_ROUTER_TAGS: dict = {
     "preferences": SAVE_PREFERENCES,
     "talk": THINKING_NODE,
     "read": SAVE_READ_BOOKS,
-    "end": END
+    "end": SUMMARY_NODE
 }

@@ -22,7 +22,9 @@ from src.agent.nodes import (
     get_intention,
     save_preferences,
     save_read_books,
-    empty_node
+    empty_node,
+    do_summary,
+    clean_message_history
 )
 from src.agent.states import InternalState
 from src.utils.constants import (
@@ -31,7 +33,9 @@ from src.utils.constants import (
     SAVE_PREFERENCES,
     SAVE_READ_BOOKS,
     INITIAL_ROUTER_TAGS,
-    EMPTY_NODE
+    EMPTY_NODE,
+    SUMMARY_NODE,
+    CLEAN_NODE
 )
 
 # Load environment variables (e.g., API keys for OpenAI)
@@ -52,15 +56,19 @@ def build_recommendation_graph() -> CompiledStateGraph:
     builder: StateGraph = StateGraph(InternalState)
 
     # Register node functions with their tags
+    builder.add_node(CLEAN_NODE, clean_message_history)
     builder.add_node(THINKING_NODE, thinking_node)
     builder.add_node(SAVE_RECOMMENDED_BOOKS, save_recommended_books)
     builder.add_node(SAVE_PREFERENCES, save_preferences)
     builder.add_node(SAVE_READ_BOOKS, save_read_books)
     builder.add_node(EMPTY_NODE, empty_node)
+    builder.add_node(SUMMARY_NODE, do_summary)
 
-    # Conditional routing from START based on intention detection
+    builder.add_edge(START, CLEAN_NODE)
+
+    # Conditional routing from CLEAN_NODE based on intention detection
     builder.add_conditional_edges(
-        START,
+        CLEAN_NODE,
         get_intention,
         INITIAL_ROUTER_TAGS,
     )
@@ -68,10 +76,12 @@ def build_recommendation_graph() -> CompiledStateGraph:
     builder.add_edge(EMPTY_NODE, SAVE_RECOMMENDED_BOOKS)
 
     # Define direct transitions from nodes to END
-    builder.add_edge(THINKING_NODE, END)
-    builder.add_edge(SAVE_RECOMMENDED_BOOKS, END)
-    builder.add_edge(SAVE_PREFERENCES, END)
-    builder.add_edge(SAVE_READ_BOOKS, END)
+    builder.add_edge(THINKING_NODE, SUMMARY_NODE)
+    builder.add_edge(SAVE_RECOMMENDED_BOOKS, SUMMARY_NODE)
+    builder.add_edge(SAVE_PREFERENCES, SUMMARY_NODE)
+    builder.add_edge(SAVE_READ_BOOKS, SUMMARY_NODE)
+
+    builder.add_edge(SUMMARY_NODE, END)
 
     # Compile and return the ready-to-run graph
     return builder.compile()
