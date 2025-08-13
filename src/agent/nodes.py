@@ -6,7 +6,7 @@ and passes structured data through the InternalState.
 """
 from typing import Dict, List, Union
 
-from langchain_core.messages import AIMessage, SystemMessage, BaseMessage, HumanMessage
+from langchain_core.messages import AIMessage, SystemMessage, BaseMessage, HumanMessage, RemoveMessage
 from langchain_openai import ChatOpenAI
 
 from src.agent.data_types import RecommendedBooks, Book, Preferences, ReadBooks, IntentClassification
@@ -16,6 +16,7 @@ from src.agent.prompts import (
     recommend_feedback,
     preferences_feedback,
     system_recommender_prompt,
+    summarizing_prompt,
 )
 from src.agent.states import InternalState
 
@@ -284,6 +285,8 @@ def get_intention(state: InternalState) -> list[str]:
         # Convert enum values to strings for compatibility
         result = [intent.value for intent in classification.intents]
 
+        state["intents"] = result
+
         print(f"Detected intents: {result}")
         return result
 
@@ -291,3 +294,50 @@ def get_intention(state: InternalState) -> list[str]:
         print(f"Error in intent classification: {e}")
         # Fallback to 'end' if classification fails
         return ["end"]
+
+
+def do_summary(state: InternalState) -> Dict[str, AIMessage]:
+    print("Summarizing info")
+
+    # Initialize chat model for generating recommendations - upgraded to GPT-4o-mini
+    chain: ChatOpenAI = ChatOpenAI(model="gpt-4")
+
+    # Build prompt with full context
+    prompt_text: str = summarizing_prompt.format(
+        intents=str(state.get("intents", [])),
+        message_history=str(state.get("messages", [])[1:]),
+        previous_books=str(state.get("recommended_books", [])),
+        read_books=str(state.get("read_books", [])),
+        preferences=str(state.get("preferences", [])),
+        user_query=state["messages"][0].content
+    )
+    system_msg: SystemMessage = SystemMessage(content=prompt_text)
+
+    # Invoke the model and return AIMessage
+    result = chain.invoke([system_msg])
+    return {"messages": AIMessage(content=result.content)}
+
+
+def clean_message_history(state: InternalState) -> Dict[str, List]:
+    intents = get_intention(state=state)
+
+    if len(state["messages"]) > 1:
+        messages = [RemoveMessage(id=message.id) for message in state["messages"][:-2]]
+
+        return {"messages": messages,
+                "intents": intents}
+
+    return {"intents": intents}
+
+
+def get_intents(state: InternalState) -> List[str]:
+    """
+    Retrieve the list of intents from the current state.
+
+    Args:
+        state (InternalState): The current graph state containing intents.
+
+    Returns:
+        List[str]: List of intent tags.
+    """
+    return state.get("intents", [])
