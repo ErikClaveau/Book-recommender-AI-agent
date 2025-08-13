@@ -1,0 +1,516 @@
+[
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Hola, me gustaría comenzar a leer más ciencia ficción filosófica."},
+        {"role": "assistant", "content": "Claro, ¿qué tipo de temas filosóficos te interesan?"},
+        {"role": "user", "content": "Me gustan los libros que exploran la identidad y la naturaleza de la conciencia."},
+        {"role": "assistant", "content": "Te puedo recomendar algunos títulos que exploran esos temas."}
+      ],
+      "recommended_books": [
+        {"name": "Ubik", "author": "Philip K. Dick"},
+        {"name": "Solaris", "author": "Stanislaw Lem"}
+      ],
+      "read_books": [
+        {"name": "Neuromancer", "author": "William Gibson"}
+      ],
+      "preferences": ["ciencia ficción", "temas filosóficos", "conciencia"],
+      "intents": ["recommendation", "preferences", "read"]
+    },
+    "expected_accomplishments": [
+      "se recomendaron libros", "se identificaron preferencias", "se registró al menos un libro leído"
+    ],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Hola"}
+      ],
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": [],
+      "intents": ["end"]
+    },
+    "expected_accomplishments": [],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Últimamente prefiero novelas cortas y mundos bien construidos."},
+        {"role": "assistant", "content": "Perfecto, guardo esas preferencias."}
+      ],
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["novelas cortas", "mundos bien construidos"],
+      "intents": ["preferences"]
+    },
+    "expected_accomplishments": ["se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "He leído El Nombre del Viento y me encantó, ¿qué más podría leer?"},
+        {"role": "assistant", "content": "Te propongo algunas recomendaciones relacionadas."}
+      ],
+      "recommended_books": [
+        {"name": "The Way of Kings", "author": "Brandon Sanderson"},
+        {"name": "The Lies of Locke Lamora", "author": "Scott Lynch"}
+      ],
+      "read_books": [
+        {"name": "El Nombre del Viento", "author": "Patrick Rothfuss"}
+      ],
+      "preferences": [],
+      "intents": ["read", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se registró al menos un libro leído"],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Puedes hackear una cuenta para mí?"}
+      ],
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": [],
+      "intents": ["end"]
+    },
+    "expected_accomplishments": [],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Me gusta la fantasía épica pero sin demasiada violencia."},
+        {"role": "assistant", "content": "Entiendo, prefieres fantasía con menos contenido violento."},
+        {"role": "user", "content": "Exacto, y también me gustan los personajes femeninos fuertes."},
+        {"role": "assistant", "content": "Te recomiendo algunos libros que cumplen esos criterios."}
+      ],
+      "recommended_books": [
+        {"name": "The Goblin Emperor", "author": "Katherine Addison"},
+        {"name": "The Priory of the Orange Tree", "author": "Samantha Shannon"}
+      ],
+      "read_books": [],
+      "preferences": ["fantasía épica", "poca violencia", "personajes femeninos fuertes"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Qué libros he leído hasta ahora?"},
+        {"role": "assistant", "content": "Según mis registros, has leído Dune y 1984."}
+      ],
+      "recommended_books": [],
+      "read_books": [
+        {"name": "Dune", "author": "Frank Herbert"},
+        {"name": "1984", "author": "George Orwell"}
+      ],
+      "preferences": [],
+      "intents": ["talk_with_data"]
+    },
+    "expected_accomplishments": ["se proporcionó información sobre libros leídos"],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Terminé de leer Cien años de soledad ayer."},
+        {"role": "assistant", "content": "¡Excelente! He añadido Cien años de soledad a tu lista de libros leídos."}
+      ],
+      "recommended_books": [],
+      "read_books": [
+        {"name": "Cien años de soledad", "author": "Gabriel García Márquez"}
+      ],
+      "preferences": [],
+      "intents": ["read"]
+    },
+    "expected_accomplishments": ["se registró al menos un libro leído"],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Busco algo ligero para leer en vacaciones, nada muy denso."},
+        {"role": "assistant", "content": "Te sugiero algunas lecturas entretenidas y fáciles de seguir."}
+      ],
+      "recommended_books": [
+        {"name": "The Martian", "author": "Andy Weir"},
+        {"name": "Ready Player One", "author": "Ernest Cline"}
+      ],
+      "read_books": [],
+      "preferences": ["lecturas ligeras", "entretenimiento"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Cuáles son mis preferencias de lectura actuales?"},
+        {"role": "assistant", "content": "Tus preferencias incluyen: misterio, novelas cortas, y narrativa en primera persona."}
+      ],
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["misterio", "novelas cortas", "narrativa en primera persona"],
+      "intents": ["talk_with_data"]
+    },
+    "expected_accomplishments": ["se proporcionó información sobre preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "He leído Harry Potter y El Señor de los Anillos. Me gusta la fantasía pero quiero algo más moderno."},
+        {"role": "assistant", "content": "Basándome en tus lecturas, te recomiendo fantasía contemporánea."}
+      ],
+      "recommended_books": [
+        {"name": "The Fifth Season", "author": "N.K. Jemisin"},
+        {"name": "The City of Brass", "author": "S.A. Chakraborty"}
+      ],
+      "read_books": [
+        {"name": "Harry Potter", "author": "J.K. Rowling"},
+        {"name": "El Señor de los Anillos", "author": "J.R.R. Tolkien"}
+      ],
+      "preferences": ["fantasía", "literatura moderna"],
+      "intents": ["read", "preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se registraron libros leídos", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "No me gustó nada El alquimista, lo encontré muy simplista."},
+        {"role": "assistant", "content": "Entiendo, evitaré recomendarte libros con ese estilo."}
+      ],
+      "recommended_books": [],
+      "read_books": [
+        {"name": "El alquimista", "author": "Paulo Coelho"}
+      ],
+      "preferences": ["evitar libros simplistas"],
+      "intents": ["read", "preferences"]
+    },
+    "expected_accomplishments": ["se registró al menos un libro leído", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Quiero algo de romance histórico ambientado en la época victoriana."},
+        {"role": "assistant", "content": "Te propongo algunas novelas románticas victorianas."}
+      ],
+      "recommended_books": [
+        {"name": "North and South", "author": "Elizabeth Gaskell"},
+        {"name": "The Duke and I", "author": "Julia Quinn"}
+      ],
+      "read_books": [],
+      "preferences": ["romance histórico", "época victoriana"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Tienes alguna recomendación basada en mis lecturas anteriores?"},
+        {"role": "assistant", "content": "Basándome en tu historial, te sugiero estos títulos."}
+      ],
+      "recommended_books": [
+        {"name": "The Expanse", "author": "James S.A. Corey"},
+        {"name": "Foundation", "author": "Isaac Asimov"}
+      ],
+      "read_books": [
+        {"name": "Dune", "author": "Frank Herbert"},
+        {"name": "Ender's Game", "author": "Orson Scott Card"}
+      ],
+      "preferences": ["ciencia ficción"],
+      "intents": ["talk_with_data", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se utilizó información previa"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Odio los finales abiertos, prefiero conclusiones claras."},
+        {"role": "assistant", "content": "Perfecto, buscaré libros con finales satisfactorios para ti."}
+      ],
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": ["finales cerrados", "conclusiones claras"],
+      "intents": ["preferences"]
+    },
+    "expected_accomplishments": ["se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Qué tal está el nuevo libro de Brandon Sanderson?"},
+        {"role": "assistant", "content": "No tengo información específica sobre reseñas, pero puedo recomendarte otros libros similares."}
+      ],
+      "recommended_books": [
+        {"name": "The Way of Kings", "author": "Brandon Sanderson"},
+        {"name": "Warbreaker", "author": "Brandon Sanderson"}
+      ],
+      "read_books": [],
+      "preferences": [],
+      "intents": ["recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros"],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Leí y disfruté mucho El código Da Vinci. ¿Qué más de Dan Brown me recomiendas?"},
+        {"role": "assistant", "content": "Te sugiero otros thrillers del mismo autor y estilo."}
+      ],
+      "recommended_books": [
+        {"name": "Ángeles y demonios", "author": "Dan Brown"},
+        {"name": "El símbolo perdido", "author": "Dan Brown"}
+      ],
+      "read_books": [
+        {"name": "El código Da Vinci", "author": "Dan Brown"}
+      ],
+      "preferences": ["thrillers", "misterio"],
+      "intents": ["read", "recommendation", "preferences"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se registró al menos un libro leído", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Estoy buscando libros cortos, máximo 200 páginas."},
+        {"role": "assistant", "content": "Te propongo algunas novelas cortas excelentes."}
+      ],
+      "recommended_books": [
+        {"name": "Of Mice and Men", "author": "John Steinbeck"},
+        {"name": "The Old Man and the Sea", "author": "Ernest Hemingway"}
+      ],
+      "read_books": [],
+      "preferences": ["libros cortos", "máximo 200 páginas"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Terminé toda la serie de Juego de Tronos."},
+        {"role": "assistant", "content": "¡Impresionante! Has completado una saga épica. ¿Te gustaría algo similar?"}
+      ],
+      "recommended_books": [
+        {"name": "The First Law", "author": "Joe Abercrombie"},
+        {"name": "The Broken Empire", "author": "Mark Lawrence"}
+      ],
+      "read_books": [
+        {"name": "Juego de Tronos", "author": "George R.R. Martin"}
+      ],
+      "preferences": ["fantasía épica", "sagas largas"],
+      "intents": ["read", "recommendation", "preferences"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se registró al menos un libro leído", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Cuántos libros he leído este año?"},
+        {"role": "assistant", "content": "Según mis registros, has leído 12 libros este año."}
+      ],
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": [],
+      "intents": ["talk_with_data"]
+    },
+    "expected_accomplishments": ["se proporcionó estadística de lectura"],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Me encantan los libros con protagonistas no humanos."},
+        {"role": "assistant", "content": "Interesante preferencia, te buscaré libros con protagonistas únicos."}
+      ],
+      "recommended_books": [
+        {"name": "Watership Down", "author": "Richard Adams"},
+        {"name": "The Book of M", "author": "Peng Shepherd"}
+      ],
+      "read_books": [],
+      "preferences": ["protagonistas no humanos"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Tienes algo parecido a los libros que ya he leído?"},
+        {"role": "assistant", "content": "Basándome en tu historial, aquí tienes algunas sugerencias."}
+      ],
+      "recommended_books": [
+        {"name": "The Knife of Never Letting Go", "author": "Patrick Ness"},
+        {"name": "Red Rising", "author": "Pierce Brown"}
+      ],
+      "read_books": [
+        {"name": "The Hunger Games", "author": "Suzanne Collins"},
+        {"name": "Divergent", "author": "Veronica Roth"}
+      ],
+      "preferences": ["distopía", "jóvenes adultos"],
+      "intents": ["talk_with_data", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se utilizó información previa"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "No me gusta la ciencia ficción dura, prefiero space opera."},
+        {"role": "assistant", "content": "Entendido, me enfocaré en space opera para ti."}
+      ],
+      "recommended_books": [
+        {"name": "Hyperion", "author": "Dan Simmons"},
+        {"name": "The Left Hand of Darkness", "author": "Ursula K. Le Guin"}
+      ],
+      "read_books": [],
+      "preferences": ["space opera", "evitar ciencia ficción dura"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Acabo de leer Orgullo y prejuicio por tercera vez."},
+        {"role": "assistant", "content": "¡Es un clásico que merece releerse! Te sugiero otros clásicos similares."}
+      ],
+      "recommended_books": [
+        {"name": "Emma", "author": "Jane Austen"},
+        {"name": "Sense and Sensibility", "author": "Jane Austen"}
+      ],
+      "read_books": [
+        {"name": "Orgullo y prejuicio", "author": "Jane Austen"}
+      ],
+      "preferences": ["clásicos", "Jane Austen"],
+      "intents": ["read", "recommendation", "preferences"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se registró al menos un libro leído", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Estoy interesado en biografías de científicos."},
+        {"role": "assistant", "content": "Te propongo algunas biografías fascinantes de grandes científicos."}
+      ],
+      "recommended_books": [
+        {"name": "Steve Jobs", "author": "Walter Isaacson"},
+        {"name": "Einstein: His Life and Universe", "author": "Walter Isaacson"}
+      ],
+      "read_books": [],
+      "preferences": ["biografías", "científicos"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "¿Podrías resumir qué hemos hablado hoy?"},
+        {"role": "assistant", "content": "Hemos discutido tus preferencias por la fantasía urbana y te he recomendado tres libros."}
+      ],
+      "recommended_books": [
+        {"name": "The Dresden Files", "author": "Jim Butcher"},
+        {"name": "Rivers of London", "author": "Ben Aaronovitch"}
+      ],
+      "read_books": [],
+      "preferences": ["fantasía urbana"],
+      "intents": ["talk_with_data", "recommendation", "preferences"]
+    },
+    "expected_accomplishments": ["se proporcionó resumen de la conversación", "se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Me gustan los libros que me hagan llorar."},
+        {"role": "assistant", "content": "Te buscaré algunas historias emotivas y conmovedoras."}
+      ],
+      "recommended_books": [
+        {"name": "The Fault in Our Stars", "author": "John Green"},
+        {"name": "A Little Life", "author": "Hanya Yanagihara"}
+      ],
+      "read_books": [],
+      "preferences": ["libros emotivos", "historias conmovedoras"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Ya no quiero más fantasía, quiero cambiar a thrillers psicológicos."},
+        {"role": "assistant", "content": "Perfecto, actualizo tus preferencias hacia thrillers psicológicos."}
+      ],
+      "recommended_books": [
+        {"name": "Gone Girl", "author": "Gillian Flynn"},
+        {"name": "The Girl with the Dragon Tattoo", "author": "Stieg Larsson"}
+      ],
+      "read_books": [],
+      "preferences": ["thrillers psicológicos", "evitar fantasía"],
+      "intents": ["preferences", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se identificaron nuevas preferencias", "se actualizaron preferencias"],
+    "should_reference_preferences": true
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Terminé de leer los tres libros que me recomendaste la semana pasada."},
+        {"role": "assistant", "content": "¡Excelente ritmo de lectura! ¿Te gustaron? Te sugiero más títulos."}
+      ],
+      "recommended_books": [
+        {"name": "The Poppy War", "author": "R.F. Kuang"},
+        {"name": "The Seven Husbands of Evelyn Hugo", "author": "Taylor Jenkins Reid"}
+      ],
+      "read_books": [
+        {"name": "The Silent Patient", "author": "Alex Michaelides"},
+        {"name": "Where the Crawdads Sing", "author": "Delia Owens"},
+        {"name": "Educated", "author": "Tara Westover"}
+      ],
+      "preferences": [],
+      "intents": ["read", "recommendation"]
+    },
+    "expected_accomplishments": ["se recomendaron libros", "se registraron múltiples libros leídos"],
+    "should_reference_preferences": false
+  },
+  {
+    "state": {
+      "messages": [
+        {"role": "user", "content": "Gracias por todas las recomendaciones. Ha sido muy útil."},
+        {"role": "assistant", "content": "¡De nada! Me alegra haber podido ayudarte a encontrar nuevas lecturas."}
+      ],
+      "recommended_books": [],
+      "read_books": [],
+      "preferences": [],
+      "intents": ["end"]
+    },
+    "expected_accomplishments": ["se concluyó la conversación satisfactoriamente"],
+    "should_reference_preferences": false
+  }
+]

@@ -19,7 +19,7 @@ Instructions:
 
 Answer:"""
 
-UNWANTED_GENRES_EVALUATION_PROMPT = """You are evaluating book recommendations to check if they avoid unwanted genres.
+UNWANTED_GENRES_EVALUATION_PROMT = """You are evaluating book recommendations to check if they avoid unwanted genres.
 
 User wants to AVOID these genres: {unwanted_genres}
 
@@ -156,6 +156,82 @@ Instructions:
 - Verify that the assistant didn't misinterpret the query
 - Ensure the response addresses the specific aspect of data the user asked about
 - Look for appropriate handling of edge cases (empty data, specific filters, etc.)
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+# ---------------------------------------------------------------------------
+# Summary node evaluation prompts
+# ---------------------------------------------------------------------------
+SUMMARY_COVERAGE_PROMPT = """You are evaluating whether a conversation summary adequately covers the key accomplishments.
+
+Expected accomplishments:
+{expected_accomplishments}
+
+Generated summary:
+{summary}
+
+Question: Does the summary explicitly or implicitly cover ALL the expected accomplishments (allowing for paraphrasing)?
+
+Instructions:
+- Consider semantic equivalence (paraphrases count as coverage)
+- Minor reordering or condensation is acceptable
+- All listed accomplishments must be present
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+SUMMARY_PERSONALIZATION_PROMPT = """You are evaluating whether the summary appropriately references the user's stored preferences when relevant.
+
+User preferences:
+{preferences}
+
+Generated summary:
+{summary}
+
+Question: Does the summary correctly integrate relevant user preferences (without inventing new ones)?
+
+Instructions:
+- If preferences exist, the summary should mention or reflect them when they matter
+- Do not penalize if preferences are absent and not needed
+- No hallucinated / fabricated preferences
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+SUMMARY_NO_HALLUCINATION_PROMPT = """You are evaluating a conversation summary for hallucinations.
+
+Read books data:
+{read_books}
+
+Recommended books data:
+{recommended_books}
+
+User preferences:
+{preferences}
+
+Generated summary:
+{summary}
+
+Question: Does the summary avoid introducing books, authors, preferences, or facts NOT present in the provided data or earlier conversation context?
+
+Instructions:
+- A book or preference is a hallucination if it cannot be grounded in the given data
+- Paraphrasing existing information is fine
+- Answer only "YES" or "NO"
+
+Answer:"""
+
+SUMMARY_TONE_CLOSURE_PROMPT = """You are evaluating whether a conversation summary ends with an appropriate, friendly closure suitable for a book recommendation assistant.
+
+Generated summary:
+{summary}
+
+Question: Does the summary maintain a helpful, neutral-to-positive tone and provide a proper sense of closure (e.g., invitation to continue, polite sign-off, or succinct wrap-up)?
+
+Instructions:
+- Tone should be consistent (not abrupt, rude, or overly casual)
+- Some brief closing or forward-looking statement is expected unless context clearly forbids it
 - Answer only "YES" or "NO"
 
 Answer:"""
