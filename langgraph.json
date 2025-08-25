@@ -10,6 +10,6 @@
     "python-dotenv"
   ],
   "graphs": {
-    "recommender": "src/agent/graph.py:graph"
+    "recommender": "app/graph/graph.py:graph"
   }
 }
