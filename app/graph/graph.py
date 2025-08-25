@@ -34,6 +34,7 @@ from app.graph.utils.constants import (
     SAVE_READ_BOOKS,
     INITIAL_ROUTER_TAGS,
     EMPTY_NODE,
+    PRE_SUMMARY_NODE,
     SUMMARY_NODE,
     CLEAN_NODE
 )
@@ -62,6 +63,7 @@ def build_recommendation_graph() -> CompiledStateGraph:
     builder.add_node(SAVE_PREFERENCES, save_preferences)
     builder.add_node(SAVE_READ_BOOKS, save_read_books)
     builder.add_node(EMPTY_NODE, empty_node)
+    builder.add_node(PRE_SUMMARY_NODE, empty_node)
     builder.add_node(SUMMARY_NODE, do_summary)
 
     builder.add_edge(START, CLEAN_NODE)
@@ -76,11 +78,12 @@ def build_recommendation_graph() -> CompiledStateGraph:
     builder.add_edge(EMPTY_NODE, SAVE_RECOMMENDED_BOOKS)
 
     # Define direct transitions from nodes to END
-    builder.add_edge(THINKING_NODE, SUMMARY_NODE)
-    builder.add_edge(SAVE_RECOMMENDED_BOOKS, SUMMARY_NODE)
-    builder.add_edge(SAVE_PREFERENCES, SUMMARY_NODE)
-    builder.add_edge(SAVE_READ_BOOKS, SUMMARY_NODE)
+    builder.add_edge(THINKING_NODE, PRE_SUMMARY_NODE)
+    builder.add_edge(SAVE_RECOMMENDED_BOOKS, PRE_SUMMARY_NODE)
+    builder.add_edge(SAVE_PREFERENCES, PRE_SUMMARY_NODE)
+    builder.add_edge(SAVE_READ_BOOKS, PRE_SUMMARY_NODE)
 
+    builder.add_edge(PRE_SUMMARY_NODE, SUMMARY_NODE)
     builder.add_edge(SUMMARY_NODE, END)
 
     # Compile and return the ready-to-run graph
