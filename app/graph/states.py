@@ -9,7 +9,7 @@ from operator import add
 from typing import Annotated, List
 
 from langgraph.graph import MessagesState
-from src.agent.data_types import Book
+from app.graph.data_types import Book, IntentEnum
 
 
 @dataclass
@@ -33,3 +33,4 @@ class InternalState(MessagesState):
     read_books: Annotated[List[Book], add]
     # User reading preferences to influence recommendations (accumulated via operator.add)
     preferences: Annotated[List[str], add]
+    intents: List[IntentEnum]
