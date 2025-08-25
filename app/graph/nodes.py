@@ -9,8 +9,8 @@ from typing import Dict, List, Union
 from langchain_core.messages import AIMessage, SystemMessage, BaseMessage, HumanMessage, RemoveMessage
 from langchain_openai import ChatOpenAI
 
-from src.agent.data_types import RecommendedBooks, Book, Preferences, ReadBooks, IntentClassification
-from src.agent.prompts import (
+from app.graph.data_types import RecommendedBooks, Book, Preferences, ReadBooks, IntentClassification
+from app.graph.prompts import (
     initial_router,
     talk_with_data,
     recommend_feedback,
@@ -18,7 +18,7 @@ from src.agent.prompts import (
     system_recommender_prompt,
     summarizing_prompt,
 )
-from src.agent.states import InternalState
+from app.graph.states import InternalState
 
 
 def thinking_node(state: InternalState) -> Dict[str, AIMessage]:
