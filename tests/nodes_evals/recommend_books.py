@@ -1,23 +1,22 @@
 import asyncio
 import json
-from typing import List, Dict
 from dotenv import load_dotenv
 
 from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
 from langsmith import Client
+from langchain_openai import ChatOpenAI
 
-from evals.utils.constants import RECOMMEND_BOOKS_GROUND_TRUTH_DATASET
-from evals.utils.paths import RECOMMEND_BOOKS_GROUND_TRUTH
-from evals.utils.evaluation_prompts import (
-    GENRE_RELEVANCE_EVALUATION_PROMPT,
-    UNWANTED_GENRES_EVALUATION_PROMPT,
-    CONTEXTUAL_RELEVANCE_EVALUATION_PROMPT
+from tests.utils.constants import RECOMMEND_BOOKS_GROUND_TRUTH_DATASET
+from tests.utils.paths import RECOMMEND_BOOKS_GROUND_TRUTH
+from tests.utils.evaluation_prompts import (
+    BOOK_RELEVANCE_EVALUATION_PROMPT,
+    BOOK_QUALITY_EVALUATION_PROMPT,
+    PREFERENCES_ALIGNMENT_EVALUATION_PROMPT
 )
 
-from src.agent.states import InternalState
-from src.agent.nodes import save_recommended_books
-from src.agent.data_types import Book
+from app.graph.states import InternalState
+from app.graph.nodes import save_recommended_books
+from app.graph.data_types import Book
 
 load_dotenv()
 
@@ -191,7 +190,7 @@ def genre_relevance_score(outputs: dict, reference_outputs: dict) -> bool:
     books_text = _format_books_for_evaluation(recommended)
 
     # Create evaluation prompt using the template
-    evaluation_prompt = GENRE_RELEVANCE_EVALUATION_PROMPT.format(
+    evaluation_prompt = BOOK_RELEVANCE_EVALUATION_PROMPT.format(
         requested_genres=', '.join(relevant_genres),
         recommended_books=books_text
     )
@@ -221,7 +220,7 @@ def avoids_unwanted_genres(outputs: dict, reference_outputs: dict) -> bool:
     books_text = _format_books_for_evaluation(recommended)
 
     # Create evaluation prompt using the template
-    evaluation_prompt = UNWANTED_GENRES_EVALUATION_PROMPT.format(
+    evaluation_prompt = BOOK_QUALITY_EVALUATION_PROMPT.format(
         unwanted_genres=', '.join(avoid_genres),
         recommended_books=books_text
     )
@@ -283,7 +282,7 @@ def contextual_relevance(outputs: dict, reference_outputs: dict) -> bool:
     books_text = _format_books_for_evaluation(recommended)
 
     # Create evaluation prompt using the template
-    evaluation_prompt = CONTEXTUAL_RELEVANCE_EVALUATION_PROMPT.format(
+    evaluation_prompt = PREFERENCES_ALIGNMENT_EVALUATION_PROMPT.format(
         read_books=read_books_text,
         preferences=preferences_text,
         user_request=user_request,

@@ -16,7 +16,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
 from dotenv import load_dotenv
 
-from src.agent.nodes import (
+from app.graph.nodes import (
     thinking_node,
     save_recommended_books,
     get_intents,
@@ -26,8 +26,8 @@ from src.agent.nodes import (
     do_summary,
     clean_message_history
 )
-from src.agent.states import InternalState
-from src.utils.constants import (
+from app.graph.states import InternalState
+from app.graph.utils.constants import (
     THINKING_NODE,
     SAVE_RECOMMENDED_BOOKS,
     SAVE_PREFERENCES,
