@@ -1,3 +1,4 @@
+fastapi==0.104.1
 ipykernel==7.0.0a1
 jupyterlab==4.5.0a1
 langchain==0.3.26
@@ -13,5 +14,6 @@ langsmith==0.4.8
 pandas==2.3.1
 pydantic==2.11.7
 python-dotenv==1.1.1
-fastapi==0.104.1
+requests>=2.31.0
 uvicorn[standard]==0.24.0
+streamlit>=1.28.0
