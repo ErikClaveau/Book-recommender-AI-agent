@@ -75,8 +75,6 @@ def build_recommendation_graph() -> CompiledStateGraph:
         INITIAL_ROUTER_TAGS,
     )
 
-    builder.add_edge(EMPTY_NODE, SAVE_RECOMMENDED_BOOKS)
-
     # Define direct transitions from nodes to END
     builder.add_edge(THINKING_NODE, PRE_SUMMARY_NODE)
     builder.add_edge(SAVE_RECOMMENDED_BOOKS, PRE_SUMMARY_NODE)
