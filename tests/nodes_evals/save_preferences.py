@@ -5,12 +5,12 @@ from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langsmith import Client
 
-from evals.utils.constants import SAVE_PREFERENCES_GROUND_TRUTH_DATASET
-from evals.utils.paths import SAVE_PREFERENCES_GROUND_TRUTH
-from evals.utils.evaluation_prompts import PREFERENCES_MATCH_EVALUATION_PROMPT
+from tests.utils.constants import SAVE_PREFERENCES_GROUND_TRUTH_DATASET
+from tests.utils.paths import SAVE_PREFERENCES_GROUND_TRUTH
+from tests.utils.evaluation_prompts import PREFERENCES_MATCH_EVALUATION_PROMPT
 
-from src.agent.states import InternalState
-from src.agent.nodes import save_preferences
+from app.graph.states import InternalState
+from app.graph.nodes import save_preferences
 from app.utils.logger import get_logger
 
 load_dotenv()

@@ -8,17 +8,17 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from langsmith import Client
 
-from evals.utils.constants import SUMMARY_GROUND_TRUTH_DATASET
-from evals.utils.paths import SUMMARY_GROUND_TRUTH
-from evals.utils.evaluation_prompts import (
+from tests.utils.constants import SUMMARY_GROUND_TRUTH_DATASET
+from tests.utils.paths import SUMMARY_GROUND_TRUTH
+from tests.utils.evaluation_prompts import (
     SUMMARY_COVERAGE_PROMPT,
     SUMMARY_PERSONALIZATION_PROMPT,
     SUMMARY_NO_HALLUCINATION_PROMPT,
     SUMMARY_TONE_CLOSURE_PROMPT,
 )
 
-from src.agent.states import InternalState
-from src.agent.nodes import do_summary
+from app.graph.states import InternalState
+from app.graph.nodes import do_summary
 
 load_dotenv()
 

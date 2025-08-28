@@ -7,17 +7,17 @@ from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langsmith import Client
 
-from evals.utils.constants import TALK_WITH_DATA_GROUND_TRUTH_DATASET
-from evals.utils.paths import TALK_WITH_DATA_GROUND_TRUTH
-from evals.utils.evaluation_prompts import (
+from tests.utils.constants import TALK_WITH_DATA_GROUND_TRUTH_DATASET
+from tests.utils.paths import TALK_WITH_DATA_GROUND_TRUTH
+from tests.utils.evaluation_prompts import (
     DATA_ACCURACY_EVALUATION_PROMPT,
     RESPONSE_COHERENCE_EVALUATION_PROMPT,
     COMPLETENESS_EVALUATION_PROMPT,
     QUERY_UNDERSTANDING_EVALUATION_PROMPT
 )
 
-from src.agent.states import InternalState
-from src.agent.nodes import thinking_node
+from app.graph.states import InternalState
+from app.graph.nodes import thinking_node
 
 load_dotenv()
 
