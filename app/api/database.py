@@ -8,6 +8,9 @@ from typing import Dict, Any, Optional, List
 from uuid import uuid4
 
 from app.graph.data_types import Book
+from app.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class DatabaseService:
@@ -16,10 +19,12 @@ class DatabaseService:
     def __init__(self, db_path: str = "sessions.db"):
         """Initialize database service."""
         self.db_path = db_path
+        logger.info(f"Initializing database service with path: {db_path}")
         self.init_database()
 
     def init_database(self):
         """Initialize database schema."""
+        logger.debug("Initializing database schema")
         with self._get_connection() as conn:
             cursor = conn.cursor()
 
@@ -51,11 +56,11 @@ class DatabaseService:
                 CREATE TABLE IF NOT EXISTS session_books (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     session_id TEXT NOT NULL,
-                    book_type TEXT NOT NULL CHECK (book_type IN ('recommended', 'read')),
-                    book_name TEXT NOT NULL,
+                    book_type TEXT NOT NULL, -- 'recommended' or 'read'
+                    name TEXT NOT NULL,
                     author TEXT NOT NULL,
                     description TEXT,
-                    timestamp TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
                     FOREIGN KEY (session_id) REFERENCES sessions (session_id) ON DELETE CASCADE
                 )
             """)
@@ -66,250 +71,316 @@ class DatabaseService:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     session_id TEXT NOT NULL,
                     preference TEXT NOT NULL,
-                    timestamp TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
                     FOREIGN KEY (session_id) REFERENCES sessions (session_id) ON DELETE CASCADE
                 )
             """)
 
-            # Create indexes for better performance
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_last_activity ON sessions (last_activity)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_session_messages_session_id ON session_messages (session_id)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_session_books_session_id ON session_books (session_id)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_session_preferences_session_id ON session_preferences (session_id)")
-
             conn.commit()
+            logger.debug("Database schema initialized successfully")
 
     @contextmanager
     def _get_connection(self):
-        """Get database connection with context manager."""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  # Enable column access by name
+        """Get database connection with proper error handling."""
+        conn = None
         try:
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
             yield conn
+        except sqlite3.Error as e:
+            logger.error(f"Database error: {e}")
+            if conn:
+                conn.rollback()
+            raise
         finally:
-            conn.close()
+            if conn:
+                conn.close()
 
     def create_session(self, session_id: Optional[str] = None) -> str:
         """Create a new session."""
-        if session_id is None:
+        if not session_id:
             session_id = str(uuid4())
 
-        timestamp = datetime.now(timezone.utc).isoformat()
+        current_time = datetime.now(timezone.utc).isoformat()
 
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT OR REPLACE INTO sessions 
-                (session_id, created_at, last_activity, message_count, recommendation_count)
-                VALUES (?, ?, ?, 0, 0)
-            """, (session_id, timestamp, timestamp))
-            conn.commit()
-
-        return session_id
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO sessions (session_id, created_at, last_activity)
+                    VALUES (?, ?, ?)
+                """, (session_id, current_time, current_time))
+                conn.commit()
+                logger.info(f"Database session created: {session_id}")
+                return session_id
+        except sqlite3.IntegrityError:
+            logger.warning(f"Session already exists: {session_id}")
+            return session_id
+        except Exception as e:
+            logger.error(f"Error creating session {session_id}: {e}")
+            raise
 
     def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Get session data with all related information."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-            # Get basic session info
-            cursor.execute("SELECT * FROM sessions WHERE session_id = ?", (session_id,))
-            session_row = cursor.fetchone()
+                # Get session basic info
+                cursor.execute("""
+                    SELECT * FROM sessions WHERE session_id = ?
+                """, (session_id,))
+                session_row = cursor.fetchone()
 
-            if not session_row:
-                return None
+                if not session_row:
+                    logger.debug(f"Session not found in database: {session_id}")
+                    return None
 
-            # Update last activity
-            cursor.execute(
-                "UPDATE sessions SET last_activity = ? WHERE session_id = ?",
-                (datetime.now(timezone.utc).isoformat(), session_id)
-            )
-            conn.commit()
+                session_data = dict(session_row)
 
-            # Get messages
-            cursor.execute("""
-                SELECT role, content, timestamp FROM session_messages 
-                WHERE session_id = ? ORDER BY timestamp ASC
-            """, (session_id,))
-            messages = [{"role": row["role"], "content": row["content"], "timestamp": row["timestamp"]}
-                       for row in cursor.fetchall()]
+                # Get messages
+                cursor.execute("""
+                    SELECT role, content, timestamp FROM session_messages
+                    WHERE session_id = ? ORDER BY timestamp
+                """, (session_id,))
+                session_data['messages'] = [dict(row) for row in cursor.fetchall()]
 
-            # Get books
-            cursor.execute("""
-                SELECT book_type, book_name, author, description FROM session_books 
-                WHERE session_id = ?
-            """, (session_id,))
-            books_data = cursor.fetchall()
+                # Get books
+                cursor.execute("""
+                    SELECT book_type, name, author, description FROM session_books
+                    WHERE session_id = ?
+                """, (session_id,))
+                books = cursor.fetchall()
 
-            recommended_books = []
-            read_books = []
-            for book in books_data:
-                book_obj = Book(
-                    name=book["book_name"],
-                    author=book["author"],
-                    description=book["description"] if book["description"] else ""
-                )
-                if book["book_type"] == "recommended":
-                    recommended_books.append(book_obj)
-                else:
-                    read_books.append(book_obj)
+                recommended_books = []
+                read_books = []
 
-            # Get preferences
-            cursor.execute("""
-                SELECT preference FROM session_preferences 
-                WHERE session_id = ? ORDER BY timestamp ASC
-            """, (session_id,))
-            preferences = [row["preference"] for row in cursor.fetchall()]
+                for book in books:
+                    book_obj = Book(
+                        name=book['name'],
+                        author=book['author'],
+                        description=book['description']
+                    )
+                    if book['book_type'] == 'recommended':
+                        recommended_books.append(book_obj)
+                    else:
+                        read_books.append(book_obj)
 
-            return {
-                "session_id": session_row["session_id"],
-                "created_at": session_row["created_at"],
-                "last_activity": session_row["last_activity"],
-                "message_count": session_row["message_count"],
-                "recommendation_count": session_row["recommendation_count"],
-                "messages": messages,
-                "recommended_books": recommended_books,
-                "read_books": read_books,
-                "preferences": preferences
-            }
+                session_data['recommended_books'] = recommended_books
+                session_data['read_books'] = read_books
+
+                # Get preferences
+                cursor.execute("""
+                    SELECT preference FROM session_preferences
+                    WHERE session_id = ? ORDER BY created_at
+                """, (session_id,))
+                session_data['preferences'] = [row['preference'] for row in cursor.fetchall()]
+
+                logger.debug(f"Session data retrieved from database: {session_id}")
+                return session_data
+
+        except Exception as e:
+            logger.error(f"Error getting session {session_id}: {e}")
+            return None
 
     def update_session(self, session_id: str, **kwargs):
         """Update session data."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
+        try:
+            current_time = datetime.now(timezone.utc).isoformat()
 
-            # Update basic session info
-            update_fields = []
-            params = []
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-            if "message_count" in kwargs:
-                update_fields.append("message_count = ?")
-                params.append(kwargs["message_count"])
-
-            if "recommendation_count" in kwargs:
-                update_fields.append("recommendation_count = ?")
-                params.append(kwargs["recommendation_count"])
-
-            update_fields.append("last_activity = ?")
-            params.append(datetime.now(timezone.utc).isoformat())
-            params.append(session_id)
-
-            if update_fields[:-1]:  # If there are fields to update besides last_activity
-                cursor.execute(f"""
-                    UPDATE sessions SET {', '.join(update_fields)}
+                # Update basic session info
+                cursor.execute("""
+                    UPDATE sessions 
+                    SET last_activity = ?, message_count = ?, recommendation_count = ?
                     WHERE session_id = ?
-                """, params)
+                """, (
+                    current_time,
+                    kwargs.get('message_count', 0),
+                    kwargs.get('recommendation_count', 0),
+                    session_id
+                ))
 
-            # Handle books
-            if "recommended_books" in kwargs:
-                # Remove old recommended books
-                cursor.execute(
-                    "DELETE FROM session_books WHERE session_id = ? AND book_type = 'recommended'",
-                    (session_id,)
-                )
-                # Add new recommended books
-                timestamp = datetime.now(timezone.utc).isoformat()
-                for book in kwargs["recommended_books"]:
+                # Update recommended books
+                if 'recommended_books' in kwargs:
+                    # Clear existing recommended books
                     cursor.execute("""
-                        INSERT INTO session_books 
-                        (session_id, book_type, book_name, author, description, timestamp)
-                        VALUES (?, 'recommended', ?, ?, ?, ?)
-                    """, (session_id, book.name, book.author, book.description, timestamp))
+                        DELETE FROM session_books 
+                        WHERE session_id = ? AND book_type = 'recommended'
+                    """, (session_id,))
 
-            if "read_books" in kwargs:
-                # Remove old read books
-                cursor.execute(
-                    "DELETE FROM session_books WHERE session_id = ? AND book_type = 'read'",
-                    (session_id,)
-                )
-                # Add new read books
-                timestamp = datetime.now(timezone.utc).isoformat()
-                for book in kwargs["read_books"]:
+                    # Insert new recommended books
+                    for book in kwargs['recommended_books']:
+                        cursor.execute("""
+                            INSERT INTO session_books 
+                            (session_id, book_type, name, author, description, created_at)
+                            VALUES (?, 'recommended', ?, ?, ?, ?)
+                        """, (session_id, book.name, book.author, book.description, current_time))
+
+                # Update read books
+                if 'read_books' in kwargs:
+                    # Clear existing read books
                     cursor.execute("""
-                        INSERT INTO session_books 
-                        (session_id, book_type, book_name, author, description, timestamp)
-                        VALUES (?, 'read', ?, ?, ?, ?)
-                    """, (session_id, book.name, book.author, book.description, timestamp))
+                        DELETE FROM session_books 
+                        WHERE session_id = ? AND book_type = 'read'
+                    """, (session_id,))
 
-            # Handle preferences
-            if "preferences" in kwargs:
-                # Remove old preferences
-                cursor.execute("DELETE FROM session_preferences WHERE session_id = ?", (session_id,))
-                # Add new preferences
-                timestamp = datetime.now(timezone.utc).isoformat()
-                for pref in kwargs["preferences"]:
+                    # Insert new read books
+                    for book in kwargs['read_books']:
+                        cursor.execute("""
+                            INSERT INTO session_books 
+                            (session_id, book_type, name, author, description, created_at)
+                            VALUES (?, 'read', ?, ?, ?, ?)
+                        """, (session_id, book.name, book.author, book.description, current_time))
+
+                # Update preferences
+                if 'preferences' in kwargs:
+                    # Clear existing preferences
                     cursor.execute("""
-                        INSERT INTO session_preferences (session_id, preference, timestamp)
-                        VALUES (?, ?, ?)
-                    """, (session_id, pref, timestamp))
+                        DELETE FROM session_preferences WHERE session_id = ?
+                    """, (session_id,))
 
-            conn.commit()
+                    # Insert new preferences
+                    for preference in kwargs['preferences']:
+                        cursor.execute("""
+                            INSERT INTO session_preferences 
+                            (session_id, preference, created_at)
+                            VALUES (?, ?, ?)
+                        """, (session_id, preference, current_time))
 
-    def add_message(self, session_id: str, role: str, content: str):
-        """Add a message to session."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO session_messages (session_id, role, content, timestamp)
-                VALUES (?, ?, ?, ?)
-            """, (session_id, role, content, datetime.now(timezone.utc).isoformat()))
-            conn.commit()
+                conn.commit()
+                logger.debug(f"Session updated in database: {session_id}")
+
+        except Exception as e:
+            logger.error(f"Error updating session {session_id}: {e}")
+            raise
 
     def delete_session(self, session_id: str) -> bool:
-        """Delete a session and all related data."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))
-            deleted = cursor.rowcount > 0
-            conn.commit()
-            return deleted
+        """Delete a session and all its data."""
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))
+                deleted = cursor.rowcount > 0
+                conn.commit()
+
+                if deleted:
+                    logger.info(f"Session deleted from database: {session_id}")
+                else:
+                    logger.warning(f"No session found to delete: {session_id}")
+
+                return deleted
+
+        except Exception as e:
+            logger.error(f"Error deleting session {session_id}: {e}")
+            return False
 
     def list_sessions(self) -> List[Dict[str, Any]]:
         """List all active sessions."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT session_id, created_at, last_activity, message_count, recommendation_count
-                FROM sessions ORDER BY last_activity DESC
-            """)
-            return [dict(row) for row in cursor.fetchall()]
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT session_id, created_at, last_activity, message_count, recommendation_count
+                    FROM sessions ORDER BY last_activity DESC
+                """)
+                sessions = [dict(row) for row in cursor.fetchall()]
+                logger.debug(f"Listed {len(sessions)} sessions from database")
+                return sessions
 
-    def cleanup_old_sessions(self, timeout_hours: int = 24):
-        """Remove sessions older than timeout."""
-        cutoff = (datetime.now(timezone.utc) - timedelta(hours=timeout_hours)).isoformat()
+        except Exception as e:
+            logger.error(f"Error listing sessions: {e}")
+            return []
 
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM sessions WHERE last_activity < ?", (cutoff,))
-            deleted_count = cursor.rowcount
-            conn.commit()
-            return deleted_count
+    def add_message(self, session_id: str, role: str, content: str):
+        """Add a message to session."""
+        try:
+            current_time = datetime.now(timezone.utc).isoformat()
+
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO session_messages (session_id, role, content, timestamp)
+                    VALUES (?, ?, ?, ?)
+                """, (session_id, role, content, current_time))
+                conn.commit()
+                logger.debug(f"Message added to database for session {session_id}: role={role}")
+
+        except Exception as e:
+            logger.error(f"Error adding message to session {session_id}: {e}")
+            raise
 
     def get_session_stats(self) -> Dict[str, Any]:
-        """Get database statistics."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
+        """Get session statistics."""
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-            # Total sessions
-            cursor.execute("SELECT COUNT(*) as total FROM sessions")
-            total_sessions = cursor.fetchone()["total"]
+                # Total sessions
+                cursor.execute("SELECT COUNT(*) as total FROM sessions")
+                total_sessions = cursor.fetchone()['total']
 
-            # Active sessions (last 24 hours)
-            cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
-            cursor.execute("SELECT COUNT(*) as active FROM sessions WHERE last_activity > ?", (cutoff,))
-            active_sessions = cursor.fetchone()["active"]
+                # Active sessions (last 24 hours)
+                cutoff_time = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+                cursor.execute("""
+                    SELECT COUNT(*) as active FROM sessions 
+                    WHERE last_activity > ?
+                """, (cutoff_time,))
+                active_sessions = cursor.fetchone()['active']
 
-            # Total messages
-            cursor.execute("SELECT COUNT(*) as total FROM session_messages")
-            total_messages = cursor.fetchone()["total"]
+                # Total messages
+                cursor.execute("SELECT COUNT(*) as total FROM session_messages")
+                total_messages = cursor.fetchone()['total']
 
-            # Total books
-            cursor.execute("SELECT COUNT(*) as total FROM session_books")
-            total_books = cursor.fetchone()["total"]
+                # Total books
+                cursor.execute("SELECT COUNT(*) as total FROM session_books")
+                total_books = cursor.fetchone()['total']
 
-            return {
-                "total_sessions": total_sessions,
-                "active_sessions": active_sessions,
-                "total_messages": total_messages,
-                "total_books": total_books
-            }
+                stats = {
+                    'total_sessions': total_sessions,
+                    'active_sessions': active_sessions,
+                    'total_messages': total_messages,
+                    'total_books': total_books
+                }
+
+                logger.debug(f"Database statistics retrieved: {stats}")
+                return stats
+
+        except Exception as e:
+            logger.error(f"Error getting session stats: {e}")
+            return {}
+
+    def cleanup_old_sessions(self, timeout_hours: int) -> int:
+        """Remove sessions older than timeout."""
+        try:
+            cutoff_time = (datetime.now(timezone.utc) - timedelta(hours=timeout_hours)).isoformat()
+
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    DELETE FROM sessions WHERE last_activity < ?
+                """, (cutoff_time,))
+                deleted_count = cursor.rowcount
+                conn.commit()
+
+                logger.info(f"Cleaned up {deleted_count} old sessions from database")
+                return deleted_count
+
+        except Exception as e:
+            logger.error(f"Error during cleanup: {e}")
+            return 0
+
+    def get_session_count(self) -> int:
+        """Get current session count."""
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) as count FROM sessions")
+                count = cursor.fetchone()['count']
+                return count
+
+        except Exception as e:
+            logger.error(f"Error getting session count: {e}")
+            return 0

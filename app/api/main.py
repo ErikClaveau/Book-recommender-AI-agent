@@ -16,7 +16,9 @@ from app.graph.data_types import Book
 from app.api.config import config
 from app.api.models import validate_message_content
 from app.api.utils import SessionManager, format_response, sanitize_input
+from app.utils.logger import get_logger
 
+logger = get_logger(__name__)
 
 # Request/Response Models
 class ChatRequest(BaseModel):
@@ -79,13 +81,17 @@ session_manager = SessionManager(
     db_path=config.database_path
 )
 
+logger.info("Book Recommendation API initialized")
+
 
 def create_initial_state(session_id: str, message: str) -> InternalState:
     """Create initial state for graph execution."""
     session_data = session_manager.get_session(session_id)
     if not session_data:
+        logger.error(f"Session not found: {session_id}")
         raise HTTPException(status_code=404, detail="Session not found")
 
+    logger.debug(f"Creating initial state for session {session_id}")
     return InternalState(
         messages=[{"role": "user", "content": message}],
         recommended_books=session_data.get("recommended_books", []),
@@ -99,7 +105,10 @@ def update_session_from_state(session_id: str, final_state: Dict[str, Any]):
     """Update session data from graph execution results."""
     session_data = session_manager.get_session(session_id)
     if not session_data:
+        logger.warning(f"Attempted to update non-existent session: {session_id}")
         return
+
+    logger.debug(f"Updating session {session_id} with new state data")
 
     # Update accumulated data - accessing as dictionary
     session_manager.update_session(
@@ -126,6 +135,7 @@ def update_session_from_state(session_id: str, final_state: Dict[str, Any]):
 @app.get("/", response_model=HealthResponse)
 async def root():
     """Root endpoint with basic health check."""
+    logger.debug("Health check requested at root endpoint")
     return HealthResponse(
         status="healthy",
         timestamp=datetime.now(timezone.utc).isoformat(),
@@ -136,6 +146,7 @@ async def root():
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint."""
+    logger.debug("Health check requested")
     return HealthResponse(
         status="healthy",
         timestamp=datetime.now(timezone.utc).isoformat(),
@@ -152,20 +163,27 @@ async def chat(request: ChatRequest):
     along with any updated recommendations, preferences, or reading history.
     """
     try:
+        logger.info(f"Chat request received for session: {request.session_id}")
+
         # Validate and sanitize input
         sanitized_message = sanitize_input(request.message, config.max_message_length)
         if not validate_message_content(sanitized_message, config.max_message_length):
+            logger.warning(f"Invalid message content from session {request.session_id}")
             raise HTTPException(status_code=400, detail="Invalid message content")
 
         # Get or create session
         session_id = request.session_id
         if not session_id or not session_manager.get_session(session_id):
             session_id = session_manager.create_session(session_id)
+            logger.info(f"Created new session: {session_id}")
+        else:
+            logger.debug(f"Using existing session: {session_id}")
 
         # Create initial state
         initial_state = create_initial_state(session_id, sanitized_message)
 
         # Execute graph
+        logger.debug(f"Executing graph for session {session_id}")
         result = graph.invoke(initial_state)
 
         # Update session with results
@@ -186,10 +204,13 @@ async def chat(request: ChatRequest):
 
         if not assistant_response:
             assistant_response = "I'm here to help you find great books! What are you looking for?"
+            logger.warning(f"No assistant response found for session {session_id}, using default")
 
         # Format response with book recommendations if any
         recommended_books = result.get("recommended_books", [])
         formatted_response = format_response(assistant_response, recommended_books)
+
+        logger.info(f"Chat response prepared for session {session_id}, {len(recommended_books)} books recommended")
 
         return ChatResponse(
             response=formatted_response,
@@ -202,6 +223,7 @@ async def chat(request: ChatRequest):
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error processing chat request: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error processing chat request: {str(e)}")
 
 
@@ -213,20 +235,25 @@ async def get_recommendations(request: RecommendationRequest):
     This endpoint directly requests recommendations without natural language processing.
     """
     try:
+        logger.info(f"Direct recommendation request for session: {request.session_id}")
+
         # Get or create session
         session_id = request.session_id
         if not session_id or not session_manager.get_session(session_id):
             session_id = session_manager.create_session(session_id)
+            logger.info(f"Created new session for recommendations: {session_id}")
 
         # Create recommendation request message
         message_parts = ["I'd like some book recommendations."]
 
         if request.preferences:
             message_parts.append(f"My preferences are: {', '.join(request.preferences)}")
+            logger.debug(f"Preferences provided: {request.preferences}")
 
         if request.read_books:
             book_names = [f"{book.name} by {book.author}" for book in request.read_books]
             message_parts.append(f"I have read: {', '.join(book_names)}")
+            logger.debug(f"Read books provided: {len(request.read_books)} books")
 
         recommendation_message = " ".join(message_parts)
 
@@ -245,22 +272,28 @@ async def get_recommendations(request: RecommendationRequest):
         # Update session with results
         update_session_from_state(session_id, result)
 
+        recommended_books = result.get("recommended_books", [])[:config.max_recommendations]
+        logger.info(f"Generated {len(recommended_books)} recommendations for session {session_id}")
+
         return RecommendationResponse(
-            recommended_books=result.get("recommended_books", [])[:config.max_recommendations],
+            recommended_books=recommended_books,
             session_id=session_id
         )
 
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error getting recommendations: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error getting recommendations: {str(e)}")
 
 
 @app.get("/sessions/{session_id}", response_model=Dict[str, Any])
 async def get_session(session_id: str):
     """Get session data including conversation history and accumulated data."""
+    logger.debug(f"Session info requested for: {session_id}")
     session_data = session_manager.get_session(session_id)
     if not session_data:
+        logger.warning(f"Session not found: {session_id}")
         raise HTTPException(status_code=404, detail="Session not found")
 
     return session_data
@@ -269,16 +302,21 @@ async def get_session(session_id: str):
 @app.delete("/sessions/{session_id}")
 async def delete_session(session_id: str):
     """Delete a session and all its data."""
+    logger.info(f"Session deletion requested: {session_id}")
     if not session_manager.delete_session(session_id):
+        logger.warning(f"Attempted to delete non-existent session: {session_id}")
         raise HTTPException(status_code=404, detail="Session not found")
 
+    logger.info(f"Session deleted successfully: {session_id}")
     return {"message": f"Session {session_id} deleted successfully"}
 
 
 @app.get("/sessions", response_model=Dict[str, Any])
 async def list_sessions():
     """List all active sessions."""
+    logger.debug("Sessions list requested")
     sessions_info = session_manager.list_sessions()
+    logger.info(f"Listed {len(sessions_info)} active sessions")
     return {
         "sessions": sessions_info,
         "count": len(sessions_info)
@@ -289,6 +327,7 @@ async def list_sessions():
 async def get_stats():
     """Get API usage statistics from the database."""
     try:
+        logger.debug("API statistics requested")
         db_stats = session_manager.get_session_stats()
         sessions_info = session_manager.list_sessions()
 
@@ -298,6 +337,7 @@ async def get_stats():
             "sessions_last_24h": db_stats["active_sessions"]
         }
     except Exception as e:
+        logger.error(f"Error getting stats: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error getting stats: {str(e)}")
 
 
@@ -306,11 +346,13 @@ async def cleanup_old_sessions():
     """Manually trigger cleanup of old sessions."""
     try:
         deleted_count = session_manager._cleanup_old_sessions()
+        logger.info(f"Cleaned up {deleted_count} old sessions")
         return {
             "message": f"Cleaned up {deleted_count} old sessions",
             "deleted_count": deleted_count
         }
     except Exception as e:
+        logger.error(f"Error during cleanup: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error during cleanup: {str(e)}")
 
 
@@ -319,6 +361,7 @@ async def get_database_info():
     """Get database information and statistics."""
     try:
         stats = session_manager.get_session_stats()
+        logger.debug(f"Database info requested: {stats}")
         return {
             "database_path": config.database_path,
             "stats": stats,
@@ -329,6 +372,7 @@ async def get_database_info():
             }
         }
     except Exception as e:
+        logger.error(f"Error getting database info: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error getting database info: {str(e)}")
 
 

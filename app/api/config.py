@@ -4,6 +4,9 @@ Configuration settings for the Book Recommendation API.
 from pydantic import BaseModel
 from typing import List
 import os
+from app.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class APIConfig(BaseModel):
@@ -35,7 +38,8 @@ class APIConfig(BaseModel):
     @classmethod
     def from_env(cls) -> "APIConfig":
         """Create configuration from environment variables."""
-        return cls(
+        logger.debug("Loading configuration from environment variables")
+        config = cls(
             host=os.getenv("API_HOST", "0.0.0.0"),
             port=int(os.getenv("API_PORT", "8000")),
             debug=os.getenv("API_DEBUG", "false").lower() == "true",
@@ -47,7 +51,10 @@ class APIConfig(BaseModel):
             max_message_length=int(os.getenv("MAX_MESSAGE_LENGTH", "1000")),
             max_recommendations=int(os.getenv("MAX_RECOMMENDATIONS", "10"))
         )
+        logger.info(f"Configuration loaded: host={config.host}, port={config.port}, debug={config.debug}")
+        return config
 
 
 # Global configuration instance
 config = APIConfig.from_env()
+logger.info("API configuration initialized")

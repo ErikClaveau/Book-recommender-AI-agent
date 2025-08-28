@@ -38,9 +38,12 @@ from app.graph.utils.constants import (
     SUMMARY_NODE,
     CLEAN_NODE
 )
+from app.utils.logger import get_logger
 
 # Load environment variables (e.g., API keys for OpenAI)
 load_dotenv()
+
+logger = get_logger(__name__)
 
 
 def build_recommendation_graph() -> CompiledStateGraph:
@@ -51,42 +54,58 @@ def build_recommendation_graph() -> CompiledStateGraph:
     handles reading history, and manages graph termination.
 
     Returns:
-        CompiledStateGraph: The executable state graph instance.
+        CompiledStateGraph: Complete graph ready for execution.
     """
-    # Initialize the state graph with domain-specific InternalState
-    builder: StateGraph = StateGraph(InternalState)
+    logger.info("Building recommendation graph")
 
-    # Register node functions with their tags
-    builder.add_node(CLEAN_NODE, clean_message_history)
-    builder.add_node(THINKING_NODE, thinking_node)
-    builder.add_node(SAVE_RECOMMENDED_BOOKS, save_recommended_books)
-    builder.add_node(SAVE_PREFERENCES, save_preferences)
-    builder.add_node(SAVE_READ_BOOKS, save_read_books)
-    builder.add_node(EMPTY_NODE, empty_node)
-    builder.add_node(PRE_SUMMARY_NODE, empty_node)
-    builder.add_node(SUMMARY_NODE, do_summary)
+    # Initialize the state graph
+    workflow = StateGraph(InternalState)
 
-    builder.add_edge(START, CLEAN_NODE)
+    # Add all nodes to the graph
+    workflow.add_node(CLEAN_NODE, clean_message_history)
+    workflow.add_node(THINKING_NODE, thinking_node)
+    workflow.add_node(SAVE_RECOMMENDED_BOOKS, save_recommended_books)
+    workflow.add_node(SAVE_PREFERENCES, save_preferences)
+    workflow.add_node(SAVE_READ_BOOKS, save_read_books)
+    workflow.add_node(EMPTY_NODE, empty_node)
+    workflow.add_node(PRE_SUMMARY_NODE, empty_node)
+    workflow.add_node(SUMMARY_NODE, do_summary)
 
-    # Conditional routing from CLEAN_NODE based on intention detection
-    builder.add_conditional_edges(
+    # Set entry point
+    workflow.add_edge(START, CLEAN_NODE)
+
+    # Router logic with conditional edges
+    workflow.add_conditional_edges(
         CLEAN_NODE,
         get_intents,
-        INITIAL_ROUTER_TAGS,
+        {
+            INITIAL_ROUTER_TAGS.RECOMMEND_BOOKS.value: THINKING_NODE,
+            INITIAL_ROUTER_TAGS.SAVE_PREFERENCES.value: SAVE_PREFERENCES,
+            INITIAL_ROUTER_TAGS.SAVE_READ_BOOKS.value: SAVE_READ_BOOKS,
+            INITIAL_ROUTER_TAGS.TALK_WITH_DATA.value: THINKING_NODE,
+            INITIAL_ROUTER_TAGS.END.value: PRE_SUMMARY_NODE,
+        }
     )
 
-    # Define direct transitions from nodes to END
-    builder.add_edge(THINKING_NODE, PRE_SUMMARY_NODE)
-    builder.add_edge(SAVE_RECOMMENDED_BOOKS, PRE_SUMMARY_NODE)
-    builder.add_edge(SAVE_PREFERENCES, PRE_SUMMARY_NODE)
-    builder.add_edge(SAVE_READ_BOOKS, PRE_SUMMARY_NODE)
+    # Connect thinking node to book saving
+    workflow.add_edge(THINKING_NODE, SAVE_RECOMMENDED_BOOKS)
 
-    builder.add_edge(PRE_SUMMARY_NODE, SUMMARY_NODE)
-    builder.add_edge(SUMMARY_NODE, END)
+    # All save nodes lead to summary preparation
+    workflow.add_edge(SAVE_RECOMMENDED_BOOKS, PRE_SUMMARY_NODE)
+    workflow.add_edge(SAVE_PREFERENCES, PRE_SUMMARY_NODE)
+    workflow.add_edge(SAVE_READ_BOOKS, PRE_SUMMARY_NODE)
 
-    # Compile and return the ready-to-run graph
-    return builder.compile()
+    # Summary flow
+    workflow.add_edge(PRE_SUMMARY_NODE, SUMMARY_NODE)
+    workflow.add_edge(SUMMARY_NODE, END)
+
+    # Compile the graph
+    compiled_graph = workflow.compile()
+
+    logger.info("Recommendation graph built and compiled successfully")
+    return compiled_graph
 
 
-# Instantiate the graph at import time for convenient use
-graph: CompiledStateGraph = build_recommendation_graph()
+# Create the compiled graph instance
+graph = build_recommendation_graph()
+logger.info("Graph instance created and ready for use")
