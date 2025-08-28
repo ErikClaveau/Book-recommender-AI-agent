@@ -2,11 +2,11 @@
 Additional models and utilities for the Book Recommendation API.
 """
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, validator
-from datetime import datetime
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime, timezone
 from enum import Enum
 
-from app.graph.data_types import Book, IntentEnum
+from app.graph.data_types import Book
 
 
 class APIStatus(str, Enum):
@@ -29,7 +29,8 @@ class BulkRecommendationRequest(BaseModel):
     """Request model for bulk recommendations."""
     requests: List[Dict[str, Any]] = Field(..., description="List of recommendation requests")
 
-    @validator('requests')
+    @field_validator('requests')
+    @classmethod
     def validate_requests(cls, v):
         if len(v) > 10:
             raise ValueError("Maximum 10 requests allowed in bulk")
@@ -52,19 +53,18 @@ class UserPreferences(BaseModel):
 
 
 class RecommendationStats(BaseModel):
-    """Statistics about recommendations."""
-    total_recommendations: int = 0
-    unique_books_recommended: int = 0
+    """Statistics for the recommendation system."""
+    total_recommendations: int
+    unique_books_recommended: int
     user_satisfaction_score: Optional[float] = None
     most_recommended_genre: Optional[str] = None
 
 
 class APIError(BaseModel):
-    """Standard error response model."""
+    """Standard API error response."""
     error: str
-    message: str
-    details: Optional[Dict[str, Any]] = None
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    detail: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 class ConversationHistory(BaseModel):
@@ -77,10 +77,15 @@ class ConversationHistory(BaseModel):
 
 def validate_message_content(content: str, max_length: int = 1000) -> bool:
     """Validate message content."""
-    if not content or not content.strip():
+    if not content or not isinstance(content, str):
         return False
+
+    if len(content.strip()) == 0:
+        return False
+
     if len(content) > max_length:
         return False
+
     return True
 
 
@@ -89,11 +94,13 @@ def format_book_list(books: List[Book]) -> str:
     if not books:
         return "No books available."
 
-    formatted = []
+    formatted_books = []
     for i, book in enumerate(books, 1):
-        formatted.append(f"{i}. {book.name} by {book.author}")
+        formatted_books.append(f"{i}. **{book.name}** by {book.author}")
+        if book.description:
+            formatted_books.append(f"   {book.description}")
 
-    return "\n".join(formatted)
+    return "\n".join(formatted_books)
 
 
 def extract_intent_from_message(message: str) -> List[str]:
