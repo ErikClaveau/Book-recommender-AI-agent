@@ -211,3 +211,5 @@ __marimo__/
 *.pckl
 *.langgraph_api
 *.sqlite3
+
+*.db

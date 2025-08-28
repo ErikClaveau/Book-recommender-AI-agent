@@ -8,17 +8,13 @@ from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.graph.graph import graph
 from app.graph.states import InternalState
-from app.graph.data_types import Book, IntentEnum
+from app.graph.data_types import Book
 from app.api.config import config
-from app.api.models import (
-    APIError, SessionInfo, RecommendationStats,
-    format_book_list, validate_message_content
-)
+from app.api.models import validate_message_content
 from app.api.utils import SessionManager, format_response, sanitize_input
 
 
@@ -79,7 +75,8 @@ app.add_middleware(
 # Initialize session manager
 session_manager = SessionManager(
     max_sessions=config.max_sessions,
-    timeout_hours=config.session_timeout_hours
+    timeout_hours=config.session_timeout_hours,
+    db_path=config.database_path
 )
 
 
@@ -131,7 +128,7 @@ async def root():
     """Root endpoint with basic health check."""
     return HealthResponse(
         status="healthy",
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         version="1.0.0"
     )
 
@@ -141,7 +138,7 @@ async def health_check():
     """Health check endpoint."""
     return HealthResponse(
         status="healthy",
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         version="1.0.0"
     )
 
@@ -288,18 +285,51 @@ async def list_sessions():
     }
 
 
-@app.get("/stats", response_model=RecommendationStats)
+@app.get("/stats", response_model=Dict[str, Any])
 async def get_stats():
-    """Get API usage statistics."""
-    sessions_info = session_manager.list_sessions()
-    total_recommendations = sum(s.get("recommendation_count", 0) for s in sessions_info)
+    """Get API usage statistics from the database."""
+    try:
+        db_stats = session_manager.get_session_stats()
+        sessions_info = session_manager.list_sessions()
 
-    return RecommendationStats(
-        total_recommendations=total_recommendations,
-        unique_books_recommended=0,  # Could be calculated from session data
-        user_satisfaction_score=None,  # Could be implemented with user feedback
-        most_recommended_genre=None   # Could be calculated from preferences
-    )
+        return {
+            "database_stats": db_stats,
+            "session_count": len(sessions_info),
+            "sessions_last_24h": db_stats["active_sessions"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting stats: {str(e)}")
+
+
+@app.post("/admin/cleanup")
+async def cleanup_old_sessions():
+    """Manually trigger cleanup of old sessions."""
+    try:
+        deleted_count = session_manager._cleanup_old_sessions()
+        return {
+            "message": f"Cleaned up {deleted_count} old sessions",
+            "deleted_count": deleted_count
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during cleanup: {str(e)}")
+
+
+@app.get("/admin/database-info")
+async def get_database_info():
+    """Get database information and statistics."""
+    try:
+        stats = session_manager.get_session_stats()
+        return {
+            "database_path": config.database_path,
+            "stats": stats,
+            "config": {
+                "max_sessions": config.max_sessions,
+                "session_timeout_hours": config.session_timeout_hours,
+                "auto_cleanup_interval_minutes": config.auto_cleanup_interval_minutes
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting database info: {str(e)}")
 
 
 if __name__ == "__main__":
