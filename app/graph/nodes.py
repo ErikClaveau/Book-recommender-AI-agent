@@ -19,6 +19,9 @@ from app.graph.prompts import (
     summarizing_prompt,
 )
 from app.graph.states import InternalState
+from app.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def thinking_node(state: InternalState) -> Dict[str, AIMessage]:
@@ -35,7 +38,7 @@ def thinking_node(state: InternalState) -> Dict[str, AIMessage]:
     Returns:
         Dict[str, AIMessage]: Mapping with key "messages" for the next node.
     """
-    print("Executing thinking node")
+    logger.info("Executing thinking node")
 
     # Initialize chat model for generating recommendations - upgraded to GPT-4o-mini
     chain: ChatOpenAI = ChatOpenAI(model="gpt-4o-mini")
@@ -93,7 +96,7 @@ def save_recommended_books(
             - "recommended_books": Parsed Book list.
             - "messages": AIMessage with feedback.
     """
-    print("Saving recommended books")
+    logger.info("Saving recommended books")
 
     model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     structured_chain = model.with_structured_output(RecommendedBooks)
@@ -160,7 +163,7 @@ def save_preferences(
             - "preferences": List of preferences.
             - "messages": AIMessage with feedback.
     """
-    print("Saving user preferences")
+    logger.info("Saving user preferences")
 
     model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     structured_chain = model.with_structured_output(Preferences)
@@ -220,7 +223,7 @@ def save_read_books(
             - "read_books": List of books read.
             - "messages": AIMessage with feedback.
     """
-    print("Saving read books")
+    logger.info("Saving read books")
 
     model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     structured_chain = model.with_structured_output(ReadBooks)
@@ -266,7 +269,7 @@ def get_intention(state: InternalState) -> list[str]:
     Returns:
         list[str]: List of detected intent tags for routing decisions.
     """
-    print("Getting intention")
+    logger.info("Getting intention")
 
     # Use GPT-4o for better intent classification
     router = ChatOpenAI(model="gpt-4o", temperature=0)
@@ -287,17 +290,17 @@ def get_intention(state: InternalState) -> list[str]:
 
         state["intents"] = result
 
-        print(f"Detected intents: {result}")
+        logger.info(f"Detected intents: {result}")
         return result
 
     except Exception as e:
-        print(f"Error in intent classification: {e}")
+        logger.error(f"Error in intent classification: {e}")
         # Fallback to 'end' if classification fails
         return ["end"]
 
 
 def do_summary(state: InternalState) -> Dict[str, AIMessage]:
-    print("Summarizing info")
+    logger.info("Summarizing info")
 
     # Initialize chat model for generating recommendations - upgraded to GPT-4o-mini
     chain: ChatOpenAI = ChatOpenAI(model="gpt-4")

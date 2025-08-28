@@ -5,16 +5,18 @@ from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langsmith import Client
 
-from evals.utils.constants import SAVE_PREFERENCES_GROUND_TRUTH_DATASET
-from evals.utils.paths import SAVE_PREFERENCES_GROUND_TRUTH
-from evals.utils.evaluation_prompts import PREFERENCES_MATCH_EVALUATION_PROMPT
+from tests.utils.constants import SAVE_PREFERENCES_GROUND_TRUTH_DATASET
+from tests.utils.paths import SAVE_PREFERENCES_GROUND_TRUTH
+from tests.utils.evaluation_prompts import PREFERENCES_MATCH_EVALUATION_PROMPT
 
-from src.agent.states import InternalState
-from src.agent.nodes import save_preferences
+from app.graph.states import InternalState
+from app.graph.nodes import save_preferences
+from app.utils.logger import get_logger
 
 load_dotenv()
 
 client = Client()
+logger = get_logger(__name__)
 
 
 def load_dataset() -> None:
@@ -189,11 +191,11 @@ def evaluate_save_preferences() -> None:
         num_repetitions=1,
     )
 
-    print("Preferences evaluation completed:")
-    print(f"Semantic preferences match: {results['semantic_preferences_match']}")
-    print(f"Partial match accuracy: {results['partial_match_accuracy']}")
-    print(f"Preferences count accuracy: {results['preferences_count_accuracy']}")
-    print(f"Preferences detection: {results['has_preferences_detected']}")
+    logger.info("Preferences evaluation completed:")
+    logger.info(f"Semantic preferences match: {results['semantic_preferences_match']}")
+    logger.info(f"Partial match accuracy: {results['partial_match_accuracy']}")
+    logger.info(f"Preferences count accuracy: {results['preferences_count_accuracy']}")
+    logger.info(f"Preferences detection: {results['has_preferences_detected']}")
 
 
 if __name__ == "__main__":

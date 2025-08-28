@@ -9,11 +9,14 @@ if __name__ == "__main__":
     import uvicorn
     from app.api.main import app
     from app.api.config import config
+    from app.utils.logger import get_logger
 
-    print("🚀 Starting Book Recommendation API...")
-    print(f"📍 Server will be available at: http://{config.host}:{config.port}")
-    print(f"📖 API Documentation: http://{config.host}:{config.port}/docs")
-    print(f"🔧 ReDoc Documentation: http://{config.host}:{config.port}/redoc")
+    logger = get_logger(__name__)
+
+    logger.info("🚀 Starting Book Recommendation API...")
+    logger.info(f"📍 Server will be available at: http://{config.host}:{config.port}")
+    logger.info(f"📖 API Documentation: http://{config.host}:{config.port}/docs")
+    logger.info(f"🔧 ReDoc Documentation: http://{config.host}:{config.port}/redoc")
 
     uvicorn.run(
         "app.api.main:app",

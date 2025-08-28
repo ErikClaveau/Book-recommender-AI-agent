@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langsmith import Client
 
-from evals.utils.constants import READ_BOOKS_GROUND_TRUTH_DATASET
-from evals.utils.paths import READ_BOOKS_GROUND_TRUTH
+from tests.utils.constants import READ_BOOKS_GROUND_TRUTH_DATASET
+from tests.utils.paths import READ_BOOKS_GROUND_TRUTH
 
-from src.agent.states import InternalState
-from src.agent.nodes import save_read_books
-from src.agent.data_types import Book
+from app.graph.states import InternalState
+from app.graph.nodes import save_read_books
+from app.graph.data_types import Book
 
 load_dotenv()
 

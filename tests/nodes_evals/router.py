@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langsmith import Client
 
-from evals.utils.constants import ROUTER_GROUND_TRUTH_DATASET, ROUTER_EVALUATION_RUN
-from evals.utils.paths import ROUTER_GROUND_TRUTH
+from tests.utils.constants import ROUTER_GROUND_TRUTH_DATASET
+from tests.utils.paths import ROUTER_GROUND_TRUTH
 
-from src.agent.states import InternalState
-from src.agent.nodes import get_intention
-from src.utils.constants import INITIAL_ROUTER_TAGS
+from app.graph.states import InternalState
+from app.graph.nodes import get_intention
+from app.graph.utils.constants import INITIAL_ROUTER_TAGS
 
 load_dotenv()
 
