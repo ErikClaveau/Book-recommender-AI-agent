@@ -216,18 +216,13 @@ python -m pytest tests/ -v
 {
   "title": "Dune",
   "author": "Frank Herbert",
-  "genre": "Science Fiction",
-  "year": 1965,
-  "rating": 4.5
 }
 ```
 
 ### Preferences
 ```json
 {
-  "genres": ["science fiction", "fantasy"],
-  "authors": ["Isaac Asimov"],
-  "themes": ["space exploration", "AI"]
+  "preferences": ["science fiction", "fantasy"]
 }
 ```
 
@@ -275,7 +270,6 @@ This project is licensed under the MIT License. See `LICENSE` for more details.
 For questions and support:
 - Open an issue on GitHub
 - Check the API documentation
-- Consult examples in `notebooks/`
 
 ---
 
