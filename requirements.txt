@@ -1,0 +1,40 @@
+# Core Framework Dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+streamlit>=1.28.0
+
+# LangChain & LangGraph Stack
+langchain==0.3.26
+langchain-chroma==0.2.4
+langchain-community==0.3.27
+langchain-core==0.3.69
+langchain-openai==0.3.28
+langgraph==0.5.3
+langgraph-api==0.2.98
+langgraph-cli==0.3.5
+langgraph-checkpoint-sqlite==2.0.10
+langsmith==0.4.8
+
+# Data Processing & Database
+pandas==2.3.1
+pydantic==2.11.7
+
+# Environment & Configuration
+python-dotenv==1.1.1
+
+# HTTP & Networking
+requests>=2.31.0
+
+# Development & Jupyter
+ipykernel==7.0.0a1
+jupyterlab==4.5.0a1
+
+# Testing & Evaluation
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Logging & Monitoring
+python-json-logger>=2.0.0
+
+# Additional Utilities
+typing-extensions>=4.0.0
