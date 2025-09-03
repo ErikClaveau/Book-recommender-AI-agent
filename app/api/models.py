@@ -1,127 +1,78 @@
 """
-Additional models and utilities for the Book Recommendation API.
+Data models and validation functions for the Book Recommendation API.
+
+Contains Pydantic models and validation utilities for API request/response handling.
 """
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
-from datetime import datetime, timezone
-from enum import Enum
+import re
+from typing import Optional
+from app.utils.logger import get_logger
 
-from app.graph.data_types import Book
-
-
-class APIStatus(str, Enum):
-    """API status enumeration."""
-    HEALTHY = "healthy"
-    DEGRADED = "degraded"
-    UNHEALTHY = "unhealthy"
+logger = get_logger(__name__)
 
 
-class SessionInfo(BaseModel):
-    """Information about a user session."""
-    session_id: str
-    created_at: str
-    last_activity: Optional[str] = None
-    message_count: int = 0
-    recommendation_count: int = 0
+def validate_message_content(message: str, max_length: int = 2000) -> bool:
+    """
+    Validate message content for chat requests.
 
+    Args:
+        message: The message content to validate
+        max_length: Maximum allowed message length
 
-class BulkRecommendationRequest(BaseModel):
-    """Request model for bulk recommendations."""
-    requests: List[Dict[str, Any]] = Field(..., description="List of recommendation requests")
-
-    @field_validator('requests')
-    @classmethod
-    def validate_requests(cls, v):
-        if len(v) > 10:
-            raise ValueError("Maximum 10 requests allowed in bulk")
-        return v
-
-
-class BookSearchRequest(BaseModel):
-    """Request model for searching books."""
-    query: str = Field(..., min_length=1, max_length=200)
-    limit: int = Field(10, ge=1, le=50)
-
-
-class UserPreferences(BaseModel):
-    """Model for user reading preferences."""
-    genres: List[str] = []
-    authors: List[str] = []
-    length_preference: Optional[str] = None  # "short", "medium", "long"
-    difficulty_level: Optional[str] = None   # "easy", "moderate", "challenging"
-    themes: List[str] = []
-
-
-class RecommendationStats(BaseModel):
-    """Statistics for the recommendation system."""
-    total_recommendations: int
-    unique_books_recommended: int
-    user_satisfaction_score: Optional[float] = None
-    most_recommended_genre: Optional[str] = None
-
-
-class APIError(BaseModel):
-    """Standard API error response."""
-    error: str
-    detail: Optional[str] = None
-    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-
-
-class ConversationHistory(BaseModel):
-    """Model for conversation history."""
-    messages: List[Dict[str, str]]
-    session_id: str
-    started_at: str
-    updated_at: str
-
-
-def validate_message_content(content: str, max_length: int = 1000) -> bool:
-    """Validate message content."""
-    if not content or not isinstance(content, str):
+    Returns:
+        bool: True if message is valid, False otherwise
+    """
+    if not message or not isinstance(message, str):
+        logger.warning("Message validation failed: empty or invalid type")
         return False
 
-    if len(content.strip()) == 0:
+    # Check length
+    if len(message.strip()) == 0:
+        logger.warning("Message validation failed: empty message after strip")
         return False
 
-    if len(content) > max_length:
+    if len(message) > max_length:
+        logger.warning(f"Message validation failed: length {len(message)} exceeds max {max_length}")
         return False
 
+    # Check for potentially malicious content
+    suspicious_patterns = [
+        r'<script[^>]*>.*?</script>',  # Script tags
+        r'javascript:',                # JavaScript URLs
+        r'on\w+\s*=',                 # Event handlers
+        r'data:text/html',            # Data URLs with HTML
+    ]
+
+    message_lower = message.lower()
+    for pattern in suspicious_patterns:
+        if re.search(pattern, message_lower, re.IGNORECASE | re.DOTALL):
+            logger.warning(f"Message validation failed: suspicious pattern detected: {pattern}")
+            return False
+
+    logger.debug(f"Message validation passed for message of length {len(message)}")
     return True
 
 
-def format_book_list(books: List[Book]) -> str:
-    """Format a list of books for display."""
-    if not books:
-        return "No books available."
+def sanitize_session_id(session_id: Optional[str]) -> Optional[str]:
+    """
+    Sanitize session ID to prevent injection attacks.
 
-    formatted_books = []
-    for i, book in enumerate(books, 1):
-        formatted_books.append(f"{i}. **{book.name}** by {book.author}")
-        if book.description:
-            formatted_books.append(f"   {book.description}")
+    Args:
+        session_id: The session ID to sanitize
 
-    return "\n".join(formatted_books)
+    Returns:
+        str: Sanitized session ID or None if invalid
+    """
+    if not session_id:
+        return None
 
+    # Only allow alphanumeric characters and hyphens (UUID format)
+    if not re.match(r'^[a-fA-F0-9\-]+$', session_id):
+        logger.warning(f"Invalid session ID format: {session_id}")
+        return None
 
-def extract_intent_from_message(message: str) -> List[str]:
-    """Extract potential intents from a user message."""
-    message_lower = message.lower()
-    intents = []
+    # Check length (UUID should be 36 characters with hyphens)
+    if len(session_id) not in [32, 36]:  # With or without hyphens
+        logger.warning(f"Invalid session ID length: {len(session_id)}")
+        return None
 
-    # Recommendation keywords
-    if any(word in message_lower for word in ["recommend", "suggestion", "suggest", "book", "read"]):
-        intents.append("recommendation")
-
-    # Preference keywords
-    if any(word in message_lower for word in ["like", "prefer", "enjoy", "favorite", "genre"]):
-        intents.append("preferences")
-
-    # Read books keywords
-    if any(word in message_lower for word in ["read", "finished", "completed"]):
-        intents.append("read")
-
-    # General conversation keywords
-    if any(word in message_lower for word in ["hello", "hi", "chat", "talk", "discuss"]):
-        intents.append("talk")
-
-    return intents or ["talk"]
+    return session_id
