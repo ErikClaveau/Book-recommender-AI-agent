@@ -27,13 +27,25 @@ class ChatRequest(BaseModel):
     session_id: Optional[str] = None
 
 
+class BookDict(BaseModel):
+    """Dictionary representation of a book for API responses."""
+    name: Optional[str] = None
+    title: Optional[str] = None
+    author: str
+    genre: Optional[str] = None
+    year: Optional[int] = None
+    description: Optional[str] = None
+    rating: Optional[float] = None
+
+
 class ChatResponse(BaseModel):
     """Response model for chat interactions."""
     response: str
     session_id: str
-    recommended_books: List[Book] = []
+    recommended_books: List[BookDict] = []
     preferences: List[str] = []
-    read_books: List[Book] = []
+    read_books: List[BookDict] = []
+    timestamp: Optional[str] = None
 
 
 class RecommendationRequest(BaseModel):
@@ -45,7 +57,7 @@ class RecommendationRequest(BaseModel):
 
 class RecommendationResponse(BaseModel):
     """Response model for recommendations."""
-    recommended_books: List[Book]
+    recommended_books: List[BookDict]
     session_id: str
 
 
@@ -110,26 +122,64 @@ def update_session_from_state(session_id: str, final_state: Dict[str, Any]):
 
     logger.debug(f"Updating session {session_id} with new state data")
 
-    # Update accumulated data - accessing as dictionary
+    # Serialize Book objects before storing in database
+    def serialize_books_for_storage(books):
+        """Convert Book objects to dictionaries for database storage."""
+        if not books:
+            return []
+
+        serialized = []
+        for book in books:
+            if hasattr(book, 'model_dump'):  # Pydantic v2
+                serialized.append(book.model_dump())
+            elif hasattr(book, 'dict'):  # Pydantic v1
+                serialized.append(book.dict())
+            elif hasattr(book, '__dict__'):  # Object with attributes
+                book_dict = {}
+                for attr in ['name', 'author', 'title', 'genre', 'year', 'description', 'rating']:
+                    if hasattr(book, attr):
+                        value = getattr(book, attr)
+                        if value is not None:
+                            book_dict[attr] = value
+                # Ensure consistency between name and title
+                if 'name' in book_dict and 'title' not in book_dict:
+                    book_dict['title'] = book_dict['name']
+                elif 'title' in book_dict and 'name' not in book_dict:
+                    book_dict['name'] = book_dict['title']
+                serialized.append(book_dict)
+            elif isinstance(book, dict):
+                serialized.append(book)
+            else:
+                logger.warning(f"Unknown book type {type(book)}, converting to string")
+                serialized.append({'name': str(book), 'author': 'Unknown'})
+
+        return serialized
+
+    # Serialize the book data before updating session
+    serialized_recommended_books = serialize_books_for_storage(final_state.get("recommended_books", []))
+    serialized_read_books = serialize_books_for_storage(final_state.get("read_books", []))
+
+    # Update accumulated data with serialized book objects
     session_manager.update_session(
         session_id,
-        recommended_books=final_state.get("recommended_books", []),
-        read_books=final_state.get("read_books", []),
+        recommended_books=serialized_recommended_books,
+        read_books=serialized_read_books,
         preferences=final_state.get("preferences", []),
         message_count=session_data.get("message_count", 0) + 1,
-        recommendation_count=session_data.get("recommendation_count", 0) + len(final_state.get("recommended_books", []))
+        recommendation_count=session_data.get("recommendation_count", 0) + len(serialized_recommended_books)
     )
 
     # Store conversation history
     session_data = session_manager.get_session(session_id)
-    if "messages" not in session_data:
+    if session_data and "messages" not in session_data:
         session_data["messages"] = []
 
     # Add the latest messages to session
     messages = final_state.get("messages", [])
-    for message in messages:
-        if message not in session_data["messages"]:
-            session_data["messages"].append(message)
+    if session_data and messages:
+        for message in messages:
+            if message not in session_data["messages"]:
+                session_data["messages"].append(message)
 
 
 @app.get("/", response_model=HealthResponse)
@@ -197,34 +247,41 @@ async def chat(request: ChatRequest):
                 if hasattr(message, 'role') and message.role == 'assistant':
                     assistant_response = message.content
                     break
-                elif not hasattr(message, 'role'):
-                    # Handle different message formats
-                    assistant_response = str(message.content) if hasattr(message, 'content') else str(message)
+            elif hasattr(message, 'content') and not hasattr(message, 'role'):
+                # Handle AIMessage or other LangChain message types
+                assistant_response = str(message.content)
+                break
+            elif isinstance(message, dict):
+                # Handle dictionary messages
+                if message.get('role') == 'assistant' and message.get('content'):
+                    assistant_response = message.get('content', '')
                     break
+                elif message.get('content') and not message.get('role'):
+                    assistant_response = str(message.get('content', ''))
+                    break
+            elif hasattr(message, '__str__'):
+                # Fallback to string representation
+                assistant_response = str(message)
+                break
 
         if not assistant_response:
-            assistant_response = "I'm here to help you find great books! What are you looking for?"
-            logger.warning(f"No assistant response found for session {session_id}, using default")
+            assistant_response = "I understand. How can I help you with book recommendations?"
 
-        # Format response with book recommendations if any
-        recommended_books = result.get("recommended_books", [])
-        formatted_response = format_response(assistant_response, recommended_books)
-
-        logger.info(f"Chat response prepared for session {session_id}, {len(recommended_books)} books recommended")
-
-        return ChatResponse(
-            response=formatted_response,
+        # Format response
+        response_data = format_response(
+            response_text=assistant_response,
             session_id=session_id,
             recommended_books=result.get("recommended_books", []),
             preferences=result.get("preferences", []),
             read_books=result.get("read_books", [])
         )
 
-    except HTTPException:
-        raise
+        logger.info(f"Chat response generated for session {session_id}")
+        return ChatResponse(**response_data)
+
     except Exception as e:
         logger.error(f"Error processing chat request: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error processing chat request: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")
 
 
 @app.post("/recommend", response_model=RecommendationResponse)
@@ -232,10 +289,10 @@ async def get_recommendations(request: RecommendationRequest):
     """
     Get book recommendations based on preferences and reading history.
 
-    This endpoint directly requests recommendations without natural language processing.
+    This endpoint allows direct recommendation requests without chat interaction.
     """
     try:
-        logger.info(f"Direct recommendation request for session: {request.session_id}")
+        logger.info(f"Recommendation request received for session: {request.session_id}")
 
         # Get or create session
         session_id = request.session_id
@@ -243,114 +300,117 @@ async def get_recommendations(request: RecommendationRequest):
             session_id = session_manager.create_session(session_id)
             logger.info(f"Created new session for recommendations: {session_id}")
 
-        # Create recommendation request message
-        message_parts = ["I'd like some book recommendations."]
+        # Create state for recommendations
+        session_data = session_manager.get_session(session_id)
+        if not session_data:
+            raise HTTPException(status_code=404, detail="Session not found")
 
-        if request.preferences:
-            message_parts.append(f"My preferences are: {', '.join(request.preferences)}")
-            logger.debug(f"Preferences provided: {request.preferences}")
+        # Use provided data or session data
+        preferences = request.preferences or session_data.get("preferences", [])
+        read_books = request.read_books or session_data.get("read_books", [])
 
-        if request.read_books:
-            book_names = [f"{book.name} by {book.author}" for book in request.read_books]
-            message_parts.append(f"I have read: {', '.join(book_names)}")
-            logger.debug(f"Read books provided: {len(request.read_books)} books")
+        # Create message requesting recommendations
+        recommendation_message = "Please give me some book recommendations"
+        if preferences:
+            recommendation_message += f" based on my preferences: {', '.join(preferences)}"
 
-        recommendation_message = " ".join(message_parts)
-
-        # Create initial state
-        initial_state = create_initial_state(session_id, recommendation_message)
-
-        # Add any provided data to the state
-        if request.preferences:
-            initial_state.preferences.extend(request.preferences)
-        if request.read_books:
-            initial_state.read_books.extend(request.read_books)
+        initial_state = InternalState(
+            messages=[{"role": "user", "content": recommendation_message}],
+            recommended_books=session_data.get("recommended_books", []),
+            read_books=read_books,
+            preferences=preferences,
+            intents=["recommend_books"]
+        )
 
         # Execute graph
         result = graph.invoke(initial_state)
 
-        # Update session with results
+        # Update session
         update_session_from_state(session_id, result)
 
-        recommended_books = result.get("recommended_books", [])[:config.max_recommendations]
-        logger.info(f"Generated {len(recommended_books)} recommendations for session {session_id}")
-
+        logger.info(f"Recommendations generated for session {session_id}")
         return RecommendationResponse(
-            recommended_books=recommended_books,
+            recommended_books=result.get("recommended_books", []),
             session_id=session_id
         )
 
+    except Exception as e:
+        logger.error(f"Error generating recommendations: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating recommendations: {str(e)}")
+
+
+@app.get("/sessions")
+async def list_sessions():
+    """List all active sessions."""
+    try:
+        sessions = session_manager.list_sessions(active_only=True)
+        logger.info(f"Listed {len(sessions)} active sessions")
+        return {"sessions": sessions}
+    except Exception as e:
+        logger.error(f"Error listing sessions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error listing sessions: {str(e)}")
+
+
+@app.get("/sessions/{session_id}")
+async def get_session_details(session_id: str):
+    """Get details for a specific session."""
+    try:
+        session_data = session_manager.get_session(session_id)
+        if not session_data:
+            logger.warning(f"Session not found: {session_id}")
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        logger.debug(f"Session details retrieved: {session_id}")
+        return {"session": session_data}
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error getting recommendations: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error getting recommendations: {str(e)}")
-
-
-@app.get("/sessions/{session_id}", response_model=Dict[str, Any])
-async def get_session(session_id: str):
-    """Get session data including conversation history and accumulated data."""
-    logger.debug(f"Session info requested for: {session_id}")
-    session_data = session_manager.get_session(session_id)
-    if not session_data:
-        logger.warning(f"Session not found: {session_id}")
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    return session_data
+        logger.error(f"Error getting session details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting session details: {str(e)}")
 
 
 @app.delete("/sessions/{session_id}")
 async def delete_session(session_id: str):
-    """Delete a session and all its data."""
-    logger.info(f"Session deletion requested: {session_id}")
-    if not session_manager.delete_session(session_id):
-        logger.warning(f"Attempted to delete non-existent session: {session_id}")
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    logger.info(f"Session deleted successfully: {session_id}")
-    return {"message": f"Session {session_id} deleted successfully"}
-
-
-@app.get("/sessions", response_model=Dict[str, Any])
-async def list_sessions():
-    """List all active sessions."""
-    logger.debug("Sessions list requested")
-    sessions_info = session_manager.list_sessions()
-    logger.info(f"Listed {len(sessions_info)} active sessions")
-    return {
-        "sessions": sessions_info,
-        "count": len(sessions_info)
-    }
-
-
-@app.get("/stats", response_model=Dict[str, Any])
-async def get_stats():
-    """Get API usage statistics from the database."""
+    """Delete a specific session."""
     try:
-        logger.debug("API statistics requested")
-        db_stats = session_manager.get_session_stats()
-        sessions_info = session_manager.list_sessions()
-
-        return {
-            "database_stats": db_stats,
-            "session_count": len(sessions_info),
-            "sessions_last_24h": db_stats["active_sessions"]
-        }
+        success = session_manager.delete_session(session_id)
+        if success:
+            logger.info(f"Session deleted: {session_id}")
+            return {"message": "Session deleted successfully", "session_id": session_id}
+        else:
+            raise HTTPException(status_code=404, detail="Session not found")
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error getting stats: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error getting stats: {str(e)}")
+        logger.error(f"Error deleting session: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting session: {str(e)}")
 
 
+@app.get("/stats")
+async def get_api_stats():
+    """Get API statistics and health information."""
+    try:
+        stats = session_manager.get_stats()
+        stats.update({
+            "api_version": "1.0.0",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "status": "healthy"
+        })
+        logger.debug(f"API stats retrieved: {stats}")
+        return stats
+    except Exception as e:
+        logger.error(f"Error getting API stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting API stats: {str(e)}")
+
+
+# Admin endpoints for debugging and maintenance
 @app.post("/admin/cleanup")
 async def cleanup_old_sessions():
     """Manually trigger cleanup of old sessions."""
     try:
-        deleted_count = session_manager._cleanup_old_sessions()
-        logger.info(f"Cleaned up {deleted_count} old sessions")
-        return {
-            "message": f"Cleaned up {deleted_count} old sessions",
-            "deleted_count": deleted_count
-        }
+        session_manager._cleanup_old_sessions()
+        logger.info("Manual cleanup triggered")
+        return {"message": "Cleanup completed successfully"}
     except Exception as e:
         logger.error(f"Error during cleanup: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error during cleanup: {str(e)}")
@@ -360,15 +420,14 @@ async def cleanup_old_sessions():
 async def get_database_info():
     """Get database information and statistics."""
     try:
-        stats = session_manager.get_session_stats()
+        stats = session_manager.get_stats()
         logger.debug(f"Database info requested: {stats}")
         return {
             "database_path": config.database_path,
             "stats": stats,
             "config": {
                 "max_sessions": config.max_sessions,
-                "session_timeout_hours": config.session_timeout_hours,
-                "auto_cleanup_interval_minutes": config.auto_cleanup_interval_minutes
+                "session_timeout_hours": config.session_timeout_hours
             }
         }
     except Exception as e:
