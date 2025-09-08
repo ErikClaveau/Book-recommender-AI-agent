@@ -80,6 +80,7 @@ def build_recommendation_graph() -> CompiledStateGraph:
     workflow.add_node(SUMMARY_NODE, do_summary)  # Generate conversation summary
 
     # Entry point: Start with message cleaning
+    # TO DO DELETE THIS NODE
     workflow.add_edge(START, CLEAN_NODE)
 
     # Intent-based routing after message cleaning
